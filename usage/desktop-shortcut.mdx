@@ -1,0 +1,313 @@
+---
+title: 'Desktop Shortcut'
+description: 'How to use the Gemini CLI desktop shortcut created during installation'
+---
+
+## Overview
+
+The installer automatically creates a convenient desktop shortcut named **"Gemini CLI.lnk"** that allows you to launch Gemini CLI with a single double-click. This shortcut is created during Step 3/3 of the installation process.
+
+## Shortcut Creation
+
+The installer creates the shortcut automatically (lines 105-109 of the batch file):
+
+```batch
+set "SHORTCUT_PATH=%USERPROFILE%\Desktop\Gemini CLI.lnk"
+powershell -ExecutionPolicy Bypass -Command "$WshShell = New-Object -ComObject WScript.Shell; 
+  $Shortcut = $WshShell.CreateShortcut('%SHORTCUT_PATH%'); 
+  $Shortcut.TargetPath = 'powershell.exe'; 
+  $Shortcut.Arguments = '-ExecutionPolicy Bypass -NoExit -Command ""gemini""'; 
+  $Shortcut.WorkingDirectory = '%USERPROFILE%'; 
+  $Shortcut.IconLocation = 'powershell.exe,0'; 
+  $Shortcut.Description = 'Launch Gemini CLI'; 
+  $Shortcut.Save()"
+```
+
+<Info>
+You'll see a confirmation message when the shortcut is created successfully:
+
+```text
+OK. Created "Gemini CLI.lnk" shortcut on desktop.
+```
+</Info>
+
+## Shortcut Location
+
+The shortcut is placed on your desktop:
+
+```text
+C:\Users\YourUsername\Desktop\Gemini CLI.lnk
+```
+
+Where `YourUsername` is your Windows username.
+
+## How to Use the Shortcut
+
+<Steps>
+  <Step title="Locate the Shortcut">
+    Find the "Gemini CLI" shortcut icon on your desktop.
+    
+    **Icon**: The shortcut uses the PowerShell icon (blue/white design)
+  </Step>
+  
+  <Step title="Double-Click to Launch">
+    Double-click the shortcut to launch Gemini CLI.
+    
+    **What happens**:
+    - A new PowerShell window opens
+    - The window title is "Gemini CLI"
+    - The `gemini` command executes automatically
+    - The window stays open for you to interact with Gemini CLI
+  </Step>
+  
+  <Step title="Start Using Gemini CLI">
+    Once the PowerShell window opens, Gemini CLI is ready to use.
+    
+    You can immediately start typing commands or queries.
+  </Step>
+</Steps>
+
+## Shortcut Properties
+
+The desktop shortcut is configured with these properties:
+
+| Property | Value | Description |
+|----------|-------|-------------|
+| **Target** | `powershell.exe` | Launches PowerShell |
+| **Arguments** | `-ExecutionPolicy Bypass -NoExit -Command "gemini"` | Runs gemini with bypass policy, keeps window open |
+| **Working Directory** | `%USERPROFILE%` | Starts in your user profile folder (e.g., C:\Users\YourUsername) |
+| **Icon** | `powershell.exe,0` | Uses PowerShell's default icon |
+| **Description** | "Launch Gemini CLI" | Tooltip when hovering over shortcut |
+
+## Technical Details
+
+### Execution Policy Bypass
+
+The shortcut uses `-ExecutionPolicy Bypass` to ensure Gemini CLI can run without PowerShell script execution restrictions:
+
+```powershell
+powershell.exe -ExecutionPolicy Bypass -NoExit -Command "gemini"
+```
+
+<Note>
+The `-ExecutionPolicy Bypass` flag only applies to this specific PowerShell session and doesn't change your system's global execution policy.
+</Note>
+
+### No Exit Flag
+
+The `-NoExit` parameter keeps the PowerShell window open after the `gemini` command completes:
+
+- **Benefit**: Allows you to continue using Gemini CLI
+- **Behavior**: Window stays open even if the initial command finishes
+- **Closing**: You must manually close the window when done
+
+### Working Directory
+
+The shortcut starts in your user profile directory:
+
+```text
+C:\Users\YourUsername
+```
+
+**Why this matters**:
+- Any relative file paths you use will be relative to this directory
+- You can easily change to another directory using `cd` after launch
+- This is a neutral starting location that works for most use cases
+
+## Customizing the Shortcut
+
+You can customize the shortcut to better suit your needs:
+
+### Change the Icon
+
+<Steps>
+  <Step title="Right-click the shortcut">
+    Right-click "Gemini CLI.lnk" on your desktop
+  </Step>
+  
+  <Step title="Select Properties">
+    Choose "Properties" from the context menu
+  </Step>
+  
+  <Step title="Change Icon">
+    Click the "Change Icon" button and browse for a custom icon file (.ico)
+  </Step>
+  
+  <Step title="Apply Changes">
+    Click "OK" to save your changes
+  </Step>
+</Steps>
+
+### Change the Working Directory
+
+To start in a different folder:
+
+1. Right-click the shortcut and select "Properties"
+2. Find the "Start in" field
+3. Change it to your preferred directory (e.g., `C:\Projects`)
+4. Click "OK"
+
+**Example**: If you frequently work with files in `C:\Projects`, set this as the working directory.
+
+### Add Custom Arguments
+
+You can modify the shortcut to pass additional arguments to Gemini CLI:
+
+1. Right-click the shortcut → Properties
+2. In the "Target" field, modify the arguments after `"gemini"`
+3. Example: `powershell.exe -ExecutionPolicy Bypass -NoExit -Command "gemini chat"`
+
+<Warning>
+Be careful when modifying the Target field. Incorrect syntax can prevent the shortcut from working.
+</Warning>
+
+## Troubleshooting the Shortcut
+
+### Shortcut Not Created
+
+**Symptom**: No "Gemini CLI.lnk" file appears on desktop
+
+**Possible causes**:
+- PowerShell execution was blocked
+- Insufficient permissions
+- Desktop folder is redirected (corporate environment)
+
+**Solution**:
+1. Run the installer again as administrator
+2. Or manually create the shortcut:
+   - Right-click desktop → New → Shortcut
+   - Target: `powershell.exe -ExecutionPolicy Bypass -NoExit -Command "gemini"`
+   - Name: "Gemini CLI"
+
+### Shortcut Shows Error When Clicked
+
+**Symptom**: Error message appears when double-clicking
+
+**Common errors**:
+- "'gemini' is not recognized as an internal or external command"
+
+**Solution**:
+1. Verify Node.js and Gemini CLI are installed:
+   ```powershell
+   node -v
+   npm list -g @google/gemini-cli
+   ```
+2. Restart your computer to refresh PATH environment variable
+3. Re-run the installer if components are missing
+
+### PowerShell Window Closes Immediately
+
+**Symptom**: Window flashes briefly then closes
+
+**Why this happens**: This shouldn't occur due to the `-NoExit` flag
+
+**Solution**:
+1. Check the shortcut properties to ensure `-NoExit` is present
+2. If missing, edit the shortcut to add the `-NoExit` parameter
+3. The correct target should be:
+   ```text
+   powershell.exe -ExecutionPolicy Bypass -NoExit -Command "gemini"
+   ```
+
+### Shortcut Works But Authentication Required Every Time
+
+**Symptom**: Each launch prompts for authentication
+
+**Cause**: Authentication tokens not being saved properly
+
+**Solution**:
+- Ensure you complete the full authentication flow during first launch
+- Check that your user profile directory is writable
+- Verify antivirus isn't blocking Gemini CLI from saving configuration
+
+## Moving or Copying the Shortcut
+
+You can move the shortcut to other locations:
+
+### Pin to Taskbar
+
+1. Right-click the desktop shortcut
+2. Select "Pin to taskbar"
+3. Access Gemini CLI from your taskbar
+
+### Copy to Start Menu
+
+1. Copy the shortcut
+2. Navigate to: `%APPDATA%\Microsoft\Windows\Start Menu\Programs`
+3. Paste the shortcut
+4. Access from Windows Start menu
+
+### Create Multiple Shortcuts
+
+You can create multiple shortcuts with different configurations:
+
+- One for interactive mode
+- One that starts directly in chat mode
+- One that opens in a specific working directory
+
+## Alternative Launch Methods
+
+Besides the desktop shortcut, you can also launch Gemini CLI:
+
+### From Any PowerShell Window
+
+Simply type:
+
+```powershell
+gemini
+```
+
+### From Windows Run Dialog
+
+1. Press `Win + R`
+2. Type: `powershell -ExecutionPolicy Bypass -NoExit -Command "gemini"`
+3. Press Enter
+
+### From Command Prompt
+
+```cmd
+powershell -ExecutionPolicy Bypass -NoExit -Command "gemini"
+```
+
+<Info>
+The desktop shortcut is the easiest and recommended method for daily use. It saves you from typing the full command each time.
+</Info>
+
+## After Installation Message
+
+The installer provides guidance about using the shortcut (lines 131-134):
+
+```text
+Future Usage
+----------------------------------------------------------------
+You can launch Gemini CLI at any time from the desktop shortcut.
+Once configured, all features are ready to use.
+```
+
+Once you've completed the initial [authentication](/usage/authentication), the desktop shortcut provides instant access to all Gemini CLI features.
+
+## Best Practices
+
+- **Keep the shortcut on desktop** for easy access
+- **Don't modify the target** unless you know what you're doing
+- **Create copies** if you need different configurations
+- **Pin to taskbar** for even faster access
+- **Backup the shortcut** when setting up a new computer
+
+## Shortcut Not Working After Windows Update
+
+If the shortcut stops working after a Windows update:
+
+1. Verify PowerShell still works: Press `Win + X` → "PowerShell"
+2. Check if `gemini` command works in PowerShell
+3. If not, re-run the installer to update Node.js and Gemini CLI
+4. The installer will recreate the shortcut with correct settings
+
+## Next Steps
+
+Now that you understand the desktop shortcut:
+
+- Use it to launch Gemini CLI anytime
+- Explore Gemini CLI commands and features
+- Customize the shortcut to match your workflow
+- Pin it to your taskbar for even quicker access

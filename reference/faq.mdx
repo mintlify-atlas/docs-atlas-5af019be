@@ -1,0 +1,622 @@
+---
+title: 'FAQ'
+description: 'Frequently asked questions about the Gemini CLI Easy Installer'
+---
+
+## General Questions
+
+<AccordionGroup>
+  <Accordion title="What exactly is this installer?">
+    The Gemini CLI Easy Installer is a Windows batch script (`.bat` file) that automates the complete installation process for Google's Gemini CLI tool. It handles:
+    
+    - Detecting and installing Node.js if needed
+    - Updating Node.js to the latest LTS version
+    - Installing the `@google/gemini-cli` package from npm
+    - Creating a convenient desktop shortcut
+    - Launching the CLI for initial setup
+    
+    Instead of manually running multiple commands and dealing with prerequisites, you just run one batch file.
+  </Accordion>
+
+  <Accordion title="What is the Gemini CLI?">
+    The Gemini CLI is Google's official command-line interface for interacting with the Gemini AI model. It's distributed as an npm package (`@google/gemini-cli`) and allows you to:
+    
+    - Have AI-powered conversations in your terminal
+    - Use Gemini without opening a browser
+    - Integrate Gemini into scripts and workflows
+    - Choose between different authentication methods
+    - Customize themes and settings
+    
+    The package is published by Google at: https://www.npmjs.com/package/@google/gemini-cli
+  </Accordion>
+
+  <Accordion title="Why is this installer needed?">
+    Setting up Gemini CLI manually requires several steps that can be challenging for non-technical users:
+    
+    1. Installing Node.js from the official website
+    2. Understanding npm and global package installation
+    3. Running `npm install -g @google/gemini-cli` in the correct terminal
+    4. Knowing how to launch PowerShell with the right parameters
+    
+    This installer automates all of these steps, making Gemini CLI accessible to everyone, regardless of technical experience.
+  </Accordion>
+
+  <Accordion title="Is this an official Google product?">
+    **No.** This installer is a community-created tool by KM170. However, it installs the **official** `@google/gemini-cli` package from npm.
+    
+    Think of it as a convenience wrapper around Google's official CLI tool. The Gemini CLI itself is made by Google; this installer just makes it easier to set up on Windows.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Technical Questions
+
+<AccordionGroup>
+  <Accordion title="What is winget and why does the installer use it?">
+    **Winget** (Windows Package Manager) is Microsoft's official command-line package manager for Windows 10/11. It's similar to `apt` on Ubuntu or `brew` on macOS.
+    
+    The installer uses winget because:
+    - It's the recommended way to install software on modern Windows
+    - It can install and update software silently (no manual clicks)
+    - It's pre-installed on Windows 10 (version 1809+) and Windows 11
+    - It ensures you get the official Node.js LTS build from a trusted source
+    
+    **Command used in the script:**
+    ```batch
+    winget install OpenJS.NodeJS.LTS --silent
+    ```
+    
+    Reference: `gemini-cli-easy-installer-20250706.bat:30`
+    
+    <Info>
+    If winget is not available, you can install it from the Microsoft Store by searching for "App Installer".
+    </Info>
+  </Accordion>
+
+  <Accordion title="Why does the installer need to restart after installing Node.js?">
+    When Node.js is installed for the first time, it modifies Windows environment variables, specifically the PATH variable. These changes only take effect in **new processes**, not the current batch script session.
+    
+    **The problem:**
+    - Batch script starts → PATH doesn't include Node.js
+    - Winget installs Node.js → PATH is updated in the registry
+    - Current batch script → Still sees old PATH without Node.js
+    
+    **The solution:**
+    The script exits after Node.js installation and asks you to run it again. When you restart it:
+    - New batch script session starts → Reads current PATH from registry
+    - Node.js location is now in PATH → `node` and `npm` commands work
+    - Installation continues with Gemini CLI
+    
+    Reference: `gemini-cli-easy-installer-20250706.bat:33-44`
+    
+    <Note>
+    If Node.js is already installed, no restart is needed. The script only requires restart when it installs Node.js for the first time.
+    </Note>
+  </Accordion>
+
+  <Accordion title="What is @google/gemini-cli and where does it come from?">
+    `@google/gemini-cli` is the npm package name for Google's official Gemini command-line interface.
+    
+    **Package name breakdown:**
+    - `@google/` - npm scope, indicating this package is published by Google
+    - `gemini-cli` - the package name
+    
+    **Installation command:**
+    ```batch
+    npm install -g @google/gemini-cli
+    ```
+    
+    Reference: `gemini-cli-easy-installer-20250706.bat:75`
+    
+    **What the `-g` flag means:**
+    - `-g` = global installation
+    - Installs the package system-wide, not just in the current directory
+    - Makes the `gemini` command available from any terminal window
+    - Typically installs to: `C:\Users\YourName\AppData\Roaming\npm`
+    
+    You can view the package details at: https://www.npmjs.com/package/@google/gemini-cli
+  </Accordion>
+
+  <Accordion title="Why does the shortcut use PowerShell instead of Command Prompt?">
+    The desktop shortcut launches Gemini CLI through PowerShell rather than Command Prompt for several technical reasons:
+    
+    **Shortcut target:**
+    ```batch
+    powershell.exe -ExecutionPolicy Bypass -NoExit -Command "gemini"
+    ```
+    
+    Reference: `gemini-cli-easy-installer-20250706.bat:106`
+    
+    **Reasons for using PowerShell:**
+    
+    1. **Better Unicode support** - PowerShell handles international characters and emojis better than cmd.exe, which is important for AI-generated content
+    
+    2. **Modern environment** - PowerShell is the modern Windows terminal environment and is better maintained than legacy Command Prompt
+    
+    3. **Execution Policy control** - The `-ExecutionPolicy Bypass` parameter ensures scripts can run without policy restrictions
+    
+    4. **NoExit parameter** - Keeps the window open after the gemini command completes or exits, allowing you to see error messages
+    
+    5. **Better npm integration** - npm packages that install global commands work more reliably in PowerShell
+  </Accordion>
+
+  <Accordion title="How does the version update check work?">
+    The installer has a clever mechanism to detect if Node.js was actually updated:
+    
+    ```batch
+    for /f "tokens=*" %%v in ('node -v') do set "ver_before=%%v"
+    winget upgrade OpenJS.NodeJS.LTS --silent >nul 2>&1
+    for /f "tokens=*" %%v in ('node -v') do set "ver_after=%%v"
+    
+    if "!ver_before!" NEQ "!ver_after!" (
+      echo   OK. Update applied, now on latest version.
+    ) else (
+      echo   OK. Already on latest version.
+    )
+    ```
+    
+    Reference: `gemini-cli-easy-installer-20250706.bat:55-68`
+    
+    **How it works:**
+    
+    1. **Capture before version**: Runs `node -v` and saves output (e.g., "v20.11.0")
+    2. **Attempt upgrade**: Runs `winget upgrade` silently (suppressing output)
+    3. **Capture after version**: Runs `node -v` again and saves output
+    4. **Compare**: If versions differ, an update occurred; if same, already up-to-date
+    
+    **Why use delayed expansion (`!var!` instead of `%var%`)?**
+    
+    The script uses `SETLOCAL EnableDelayedExpansion` to allow variables to be updated and read within the same code block (the `if` statement). Without this, `%ver_after%` would be evaluated at parse time, not runtime.
+  </Accordion>
+
+  <Accordion title="What does 'call npm install' do differently than just 'npm install'?">
+    In the script, you'll see:
+    
+    ```batch
+    call npm install -g @google/gemini-cli
+    ```
+    
+    Reference: `gemini-cli-easy-installer-20250706.bat:75`
+    
+    **The `call` keyword is crucial:**
+    
+    On Windows, `npm` is itself a batch file. When one batch file calls another:
+    - **Without `call`**: Control transfers to the second batch file and never returns
+    - **With `call`**: Control transfers to the second batch file, then returns to continue
+    
+    **Example of what would happen WITHOUT `call`:**
+    ```batch
+    npm install -g @google/gemini-cli
+    echo "Installation complete"  ← This line would NEVER execute
+    ```
+    
+    **With `call`, the script properly:**
+    1. Starts npm installation
+    2. Waits for npm to complete
+    3. Returns control to the batch script
+    4. Continues with verification and shortcut creation
+    
+    This is a common gotcha in Windows batch scripting.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Installation & Setup Questions
+
+<AccordionGroup>
+  <Accordion title="Do I need to extract the ZIP file before running?">
+    **Yes, you must extract first.** Running the `.bat` file directly from inside the ZIP will cause problems.
+    
+    **Correct procedure:**
+    1. Download the `.zip` file from releases
+    2. Right-click → "Extract All" (or use 7-Zip/WinRAR)
+    3. Open the extracted folder
+    4. Run the `.bat` file
+    
+    **Why extraction is necessary:**
+    - Windows runs files from temp directories when executed from ZIP
+    - PATH modifications may not work correctly
+    - File permissions can be restricted
+    - Some operations may fail due to virtualization
+    
+    Reference: README.md lines 26-28
+  </Accordion>
+
+  <Accordion title="Should I run the installer as administrator?">
+    **Usually not required**, but it can help if you encounter errors.
+    
+    **Normal execution (recommended first):**
+    - Just double-click the `.bat` file
+    - Winget can usually install software in user mode
+    - npm global installs go to user's AppData folder
+    
+    **Administrator mode (if normal execution fails):**
+    - Right-click the `.bat` file
+    - Select "Run as administrator"
+    - Confirm the UAC prompt
+    
+    **When administrator mode helps:**
+    - Permission errors during Node.js installation
+    - npm installation failures
+    - Path modification issues
+    - Shortcut creation problems
+    
+    Reference: README.md line 29
+    
+    <Warning>
+    Running as administrator is mentioned in the README as an option if the normal execution doesn't work. Try normal execution first.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="What happens during the first launch of Gemini CLI?">
+    After installation completes, the script automatically launches Gemini CLI. You'll be prompted for initial configuration:
+    
+    **Step 1: Theme Selection**
+    ```
+    ? Select Theme
+    ```
+    - Choose your preferred color theme
+    - Or just press Enter to use the default
+    - This is purely cosmetic
+    
+    **Step 2: Authentication Method**
+    ```
+    ? Select Auth Method
+    > Login with Google
+      Use API Key
+    ```
+    - "Login with Google" is recommended (selected by default)
+    - Press Enter to confirm
+    - A browser window will open
+    - Sign in with your Google account
+    - Grant permissions to the CLI
+    
+    **After authentication:**
+    - You're ready to use Gemini CLI
+    - Just type your prompts and press Enter
+    - Your settings are saved for future sessions
+    
+    Reference: `gemini-cli-easy-installer-20250706.bat:118-128`
+  </Accordion>
+
+  <Accordion title="Can I install this on multiple computers?">
+    **Yes, absolutely.** The MIT License allows unlimited installations on any number of personal or work computers.
+    
+    **For each computer:**
+    - Download the installer again, or copy the `.bat` file
+    - Run the installer on each machine
+    - Each installation is independent
+    
+    **What gets installed on each computer:**
+    - Node.js (if not already present)
+    - @google/gemini-cli package
+    - Desktop shortcut
+    
+    **Note about authentication:**
+    Each computer will need its own authentication. The Google account login is stored locally on each machine, so you'll need to sign in when you first launch Gemini CLI on each computer.
+  </Accordion>
+
+  <Accordion title="How do I update Gemini CLI after installation?">
+    **Option 1: Run the installer again (easiest)**
+    - Download the latest version of the installer
+    - Run it again
+    - It will update both Node.js and Gemini CLI automatically
+    
+    **Option 2: Manual update via command line**
+    ```batch
+    npm update -g @google/gemini-cli
+    ```
+    
+    Or to force reinstall the latest version:
+    ```batch
+    npm install -g @google/gemini-cli@latest
+    ```
+    
+    **Checking your current version:**
+    ```batch
+    gemini --version
+    ```
+    
+    **When to update:**
+    - When new features are announced
+    - If you encounter bugs that might be fixed
+    - Periodically for security updates
+    - The installer itself updates Node.js on every run (if already installed)
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Troubleshooting Questions
+
+<AccordionGroup>
+  <Accordion title="What if I don't have winget installed?">
+    The installer checks for winget and displays this error if it's missing:
+    
+    ```
+    [Error] winget command not found.
+    Please install "App Installer" from Microsoft Store.
+    ```
+    
+    Reference: `gemini-cli-easy-installer-20250706.bat:20-23`
+    
+    **Solution:**
+    
+    1. **For Windows 10/11 users:**
+       - Open Microsoft Store
+       - Search for "App Installer"
+       - Click "Get" or "Install"
+       - Wait for installation to complete
+       - Run the Gemini CLI installer again
+    
+    2. **Alternative - Manual Node.js installation:**
+       If you can't get winget working, you can install Node.js manually:
+       - Visit https://nodejs.org/
+       - Download the LTS version
+       - Run the installer
+       - After installation, run the Gemini CLI installer again
+       - It will detect Node.js and skip to Gemini CLI installation
+    
+    **Why winget might be missing:**
+    - Very old Windows 10 builds (pre-1809)
+    - Windows Server editions
+    - Modified/stripped Windows installations
+    - Enterprise environments with restricted Microsoft Store access
+  </Accordion>
+
+  <Accordion title="The script says 'Gemini CLI installation failed' - what now?">
+    This error appears when the `gemini` command isn't available after running `npm install`. The script provides three potential causes:
+    
+    Reference: `gemini-cli-easy-installer-20250706.bat:81-94`
+    
+    **Cause 1: Network connection issue**
+    - Check your internet connection
+    - npm needs to download packages from registry.npmjs.org
+    - Try running the installer again when connection is stable
+    - Check if your firewall is blocking npm
+    
+    **Cause 2: Permission issue**
+    - Try running the installer as administrator:
+      - Right-click the `.bat` file
+      - Select "Run as administrator"
+    - This gives npm permission to install to system directories
+    
+    **Cause 3: npm cache corruption**
+    - Open PowerShell as administrator
+    - Run: `npm cache clean --force`
+    - This deletes corrupted cache files
+    - Run the installer again
+    
+    **Additional debugging:**
+    ```batch
+    # Check if npm is working:
+    npm --version
+    
+    # Check npm's global installation path:
+    npm config get prefix
+    
+    # Manually try installing:
+    npm install -g @google/gemini-cli
+    ```
+  </Accordion>
+
+  <Accordion title="The desktop shortcut wasn't created - is that a problem?">
+    **No, this is not a critical error.** The installer treats shortcut creation failure as a warning, not a failure.
+    
+    Reference: `gemini-cli-easy-installer-20250706.bat:108-112`
+    
+    **Why shortcut creation might fail:**
+    - Desktop folder path issues (redirected/OneDrive folders)
+    - Permission restrictions
+    - PowerShell execution policy blocking COM object creation
+    - Antivirus software interference
+    
+    **The CLI still works - launch it manually:**
+    
+    **Option 1: Via PowerShell**
+    - Open PowerShell
+    - Type: `gemini`
+    - Press Enter
+    
+    **Option 2: Create your own shortcut**
+    - Right-click on Desktop → New → Shortcut
+    - Target: `powershell.exe -ExecutionPolicy Bypass -NoExit -Command "gemini"`
+    - Name: "Gemini CLI"
+    - Click Finish
+    
+    **Option 3: Pin to taskbar/Start menu**
+    - Open PowerShell
+    - Run `gemini` once
+    - Right-click the PowerShell icon in taskbar
+    - Pin to taskbar for quick access
+  </Accordion>
+
+  <Accordion title="Why does Windows Defender/antivirus flag the batch file?">
+    Batch files that download and install software are sometimes flagged by security software as potentially unwanted programs (PUP) or suspicious.
+    
+    **This is a false positive because:**
+    - The script only uses official tools (winget, npm)
+    - It only installs from trusted sources (nodejs.org, npmjs.com)
+    - The source code is open and auditable on GitHub
+    - It doesn't hide its actions or modify system files covertly
+    
+    **Why security software flags it:**
+    - Automated software installation is a common malware behavior
+    - Use of PowerShell is sometimes flagged
+    - Creating shortcuts programmatically can trigger heuristics
+    - Low reputation score (new/infrequent file)
+    
+    **What you can do:**
+    
+    1. **Review the source code yourself**
+       - The `.bat` file is plain text
+       - Open it in Notepad to see exactly what it does
+       - Verify it only uses legitimate commands
+    
+    2. **Create an exception**
+       - Add the file to your antivirus whitelist
+       - Windows Defender: Settings → Virus & threat protection → Exclusions
+    
+    3. **Check VirusTotal**
+       - Upload the file to virustotal.com
+       - See how many engines flag it (expect 0-2 false positives)
+    
+    <Info>
+    The project is open source under MIT License. You can review every line of code on GitHub before running it.
+    </Info>
+  </Accordion>
+
+  <Accordion title="Can I use this on Windows 7 or 8?">
+    **Windows 7/8 are not officially supported**, though it might work with limitations.
+    
+    **Primary issue: winget availability**
+    - Winget requires Windows 10 version 1809 or later
+    - Windows 7/8 don't have winget at all
+    - The installer will fail at the Node.js installation step
+    
+    **Workaround for older Windows:**
+    
+    1. **Install Node.js manually first:**
+       - Visit https://nodejs.org/
+       - Download Node.js 16.x or later (newer versions may not support Win7/8)
+       - Run the installer
+       - Restart your computer
+    
+    2. **Run the Gemini CLI installer:**
+       - It will detect Node.js
+       - Skip the winget installation
+       - Install Gemini CLI via npm (which should work)
+    
+    **Limitations:**
+    - Automatic updates won't work
+    - PowerShell version on Win7/8 is older (may have compatibility issues)
+    - No official support from Microsoft (security risk)
+    
+    <Warning>
+    Windows 7 and 8 are end-of-life operating systems with no security updates. Consider upgrading to Windows 10 or 11 for security and compatibility.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Usage Questions
+
+<AccordionGroup>
+  <Accordion title="Do I need a Google account to use Gemini CLI?">
+    **Yes**, but you have two authentication options:
+    
+    **Option 1: Login with Google (recommended)**
+    - Sign in with your Google account
+    - Browser-based authentication flow
+    - More convenient for regular use
+    - Automatically handles API quotas associated with your account
+    
+    **Option 2: Use API Key**
+    - Requires getting an API key from Google AI Studio
+    - More technical setup
+    - Useful for automation and scripts
+    - Visit https://ai.google.dev/ to get an API key
+    
+    Both methods require a Google account ultimately, as the Gemini API is a Google service.
+    
+    Reference: `gemini-cli-easy-installer-20250706.bat:125-126`
+  </Accordion>
+
+  <Accordion title="Will this work offline after installation?">
+    **No.** The Gemini CLI requires an active internet connection to function.
+    
+    **What needs internet:**
+    - Every conversation with Gemini sends requests to Google's servers
+    - The AI model runs on Google's infrastructure, not locally
+    - Authentication tokens need periodic validation
+    
+    **What works offline:**
+    - Launching the CLI application itself
+    - Viewing help documentation: `gemini --help`
+    - Checking version: `gemini --version`
+    
+    **Bandwidth usage:**
+    - Text conversations: Minimal (few KB per message)
+    - Longer conversations: More data transfer
+    - No background data usage when not actively chatting
+  </Accordion>
+
+  <Accordion title="How do I uninstall Gemini CLI?">
+    **Complete uninstallation:**
+    
+    **Step 1: Uninstall Gemini CLI**
+    ```batch
+    npm uninstall -g @google/gemini-cli
+    ```
+    
+    **Step 2: Remove the desktop shortcut**
+    - Delete "Gemini CLI.lnk" from your desktop
+    
+    **Step 3: (Optional) Uninstall Node.js**
+    If you only installed Node.js for Gemini CLI and don't need it:
+    ```batch
+    winget uninstall OpenJS.NodeJS.LTS
+    ```
+    
+    Or use Windows Settings:
+    - Settings → Apps → Installed apps
+    - Find "Node.js"
+    - Click Uninstall
+    
+    **Step 4: (Optional) Clear authentication data**
+    Your Google authentication tokens are stored locally:
+    - Location: `%USERPROFILE%\.gemini-cli\` (or similar)
+    - Delete this folder to remove saved credentials
+    
+    **Step 5: Delete the installer**
+    - Delete the `.bat` file and extracted folder
+    - No other files are created outside the standard locations
+  </Accordion>
+
+  <Accordion title="Can I use this installer for automation/scripting?">
+    **Yes, but with modifications.** The current installer is designed for interactive use.
+    
+    **Current interactive elements:**
+    - `pause` commands wait for user input
+    - The final launch opens a new window
+    - Some steps display messages and wait
+    
+    **For silent/automated installation:**
+    
+    You could modify the batch script:
+    
+    ```batch
+    # Remove all 'pause' commands
+    # Remove the final 'start "Gemini CLI"' launch
+    # Add exit codes for monitoring
+    # Redirect output to log files
+    ```
+    
+    **Better approach for automation:**
+    
+    Create your own PowerShell script:
+    
+    ```powershell
+    # Check and install Node.js
+    if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+        winget install OpenJS.NodeJS.LTS --silent --accept-source-agreements
+    }
+    
+    # Install Gemini CLI
+    npm install -g @google/gemini-cli
+    
+    # Verify installation
+    if (Get-Command gemini -ErrorAction SilentlyContinue) {
+        Write-Host "Installation successful"
+    }
+    ```
+    
+    **For enterprise deployment:**
+    - Consider using SCCM, Intune, or other deployment tools
+    - Package Node.js and npm install as separate steps
+    - Handle authentication centrally (API keys)
+  </Accordion>
+</AccordionGroup>

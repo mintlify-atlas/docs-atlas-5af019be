@@ -1,0 +1,274 @@
+---
+title: "Node.js Installation Issues"
+description: "Troubleshooting Node.js installation problems with Gemini CLI Easy Installer"
+---
+
+## Overview
+
+The Gemini CLI Easy Installer checks for Node.js at the beginning of execution (Step 1/3). If Node.js is not found, it attempts to install it automatically using `winget`. This page covers common issues that occur during this process.
+
+## Error: winget Command Not Found
+
+### Problem Description
+
+You see this error message:
+
+```
+[エラー] winget コマンドが見つかりません。
+Windows 10/11の最新であることをご確認いただくか、Microsoft Storeから
+「アプリ インストーラー」をインストールしてください。
+```
+
+**English translation:**
+```
+[Error] winget command not found.
+Please ensure you have the latest version of Windows 10/11, or install
+"App Installer" from the Microsoft Store.
+```
+
+### Root Cause
+
+The `winget` command-line tool is not available on your system. This tool is required to automatically install Node.js.
+
+**Source code reference:** `gemini-cli-easy-installer-20250706.bat:19-26`
+
+```batch
+where winget >nul 2>&1 || (
+  echo [エラー] winget コマンドが見つかりません。
+  echo Windows 10/11の最新であることをご確認いただくか、Microsoft Storeから
+  echo 「アプリ インストーラー」をインストールしてください。
+  echo.
+  pause
+  exit /b 1
+)
+```
+
+### Solutions
+
+<AccordionGroup>
+  <Accordion title="Solution 1: Install App Installer from Microsoft Store">
+    The recommended solution is to install the App Installer package:
+
+    1. Open Microsoft Store
+    2. Search for "App Installer"
+    3. Click "Get" or "Install"
+    4. Wait for installation to complete
+    5. Close and reopen Command Prompt
+    6. Run the installer again
+
+    <Info>
+      App Installer includes the `winget` command-line tool needed for automatic Node.js installation.
+    </Info>
+  </Accordion>
+
+  <Accordion title="Solution 2: Update Windows">
+    Recent versions of Windows 10/11 include App Installer by default:
+
+    1. Open **Settings** → **Update & Security** → **Windows Update**
+    2. Click "Check for updates"
+    3. Install all available updates
+    4. Restart your computer
+    5. Run the installer again
+
+    **Minimum versions with winget:**
+    - Windows 11: All versions include winget by default
+    - Windows 10: Version 1809 or later (with App Installer installed)
+  </Accordion>
+
+  <Accordion title="Solution 3: Manual Node.js Installation">
+    If you cannot install winget, you can install Node.js manually:
+
+    1. Visit [nodejs.org](https://nodejs.org/)
+    2. Download the **LTS version** (recommended)
+    3. Run the installer with default options
+    4. **Important:** Check "Automatically install necessary tools" during installation
+    5. Restart your computer
+    6. Run the Gemini CLI installer again
+
+    <Warning>
+      After manual installation, you must restart your computer before the installer will detect Node.js.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
+
+## Issue: Restart Required After Node.js Installation
+
+### Problem Description
+
+After Node.js installation completes, you see this message:
+
+```
+==============================【重要】==============================
+  Node.js のインストールが完了しました。
+
+  セットアップを続けるには、新しい設定をシステムに反映させる
+  必要があります。
+
+  お手数ですが、一度このウィンドウを閉じて、
+  もう一度このファイルを実行してください。
+====================================================================
+```
+
+**English translation:**
+```
+============================【IMPORTANT】============================
+  Node.js installation has been completed.
+
+  To continue setup, the new configuration must be reflected
+  in the system.
+
+  Please close this window once,
+  and run this file again.
+====================================================================
+```
+
+### Why This Happens
+
+When Node.js is installed, it adds itself to the system PATH environment variable. However, the current Command Prompt session does not automatically reload the PATH. A restart is required for the changes to take effect.
+
+**Source code reference:** `gemini-cli-easy-installer-20250706.bat:33-44`
+
+```batch
+echo ==============================【重要】==============================
+echo   Node.js のインストールが完了しました。
+echo.
+echo   セットアップを続けるには、新しい設定をシステムに反映させる
+echo   必要があります。
+echo.
+echo   お手数ですが、一度このウィンドウを閉じて、
+echo   もう一度このファイルを実行してください。
+echo ====================================================================
+echo.
+pause
+exit /b
+```
+
+### What to Do
+
+<Steps>
+  <Step title="Close the current window">
+    Press any key to close the installer window.
+  </Step>
+  
+  <Step title="Restart your computer (recommended)">
+    Restart your computer to ensure all environment variables are properly loaded.
+    
+    <Info>
+      While you might be able to proceed by just opening a new Command Prompt, restarting ensures all system components recognize the new Node.js installation.
+    </Info>
+  </Step>
+  
+  <Step title="Run the installer again">
+    After restarting, double-click `gemini-cli-easy-installer-20250706.bat` again. The installer will now detect Node.js and proceed with Gemini CLI installation.
+  </Step>
+</Steps>
+
+### Alternative: Manual PATH Refresh
+
+If you cannot restart immediately, you can try refreshing the PATH in a new Command Prompt:
+
+```batch
+# Close the current Command Prompt
+# Open a NEW Command Prompt (not the same window)
+# Verify Node.js is detected:
+node -v
+
+# If the command works, run the installer again
+```
+
+<Warning>
+  This alternative method may not work in all cases. Restarting your computer is the most reliable solution.
+</Warning>
+
+## Verification Steps
+
+After resolving Node.js installation issues, verify the installation:
+
+### Check Node.js Version
+
+```batch
+node -v
+```
+
+**Expected output:**
+```
+v20.11.0
+```
+(or similar LTS version number)
+
+### Check npm Version
+
+```batch
+npm -v
+```
+
+**Expected output:**
+```
+10.2.4
+```
+(or similar version number)
+
+### Check PATH Configuration
+
+```batch
+echo %PATH%
+```
+
+**Expected result:** The output should include:
+```
+C:\Program Files\nodejs
+```
+
+## Node.js Update Issues
+
+The installer also attempts to update Node.js to the latest LTS version if an older version is detected.
+
+**Source code reference:** `gemini-cli-easy-installer-20250706.bat:53-68`
+
+```batch
+rem 更新前のバージョンを記録
+for /f "tokens=*" %%v in ('node -v') do set "ver_before=%%v"
+
+rem バージョンに関わらず、必ず更新を試みる
+winget upgrade OpenJS.NodeJS.LTS --silent >nul 2>&1
+
+rem 更新後のバージョンを再度取得
+for /f "tokens=*" %%v in ('node -v') do set "ver_after=%%v"
+
+rem 更新前後でバージョンが変わったかを比較
+if "!ver_before!" NEQ "!ver_after!" (
+  echo   OK. 更新が適用され、最新版になりました。
+) else (
+  echo   OK. 既に最新のバージョンがインストールされています。
+)
+```
+
+### If Update Fails
+
+If Node.js update fails but you have a working Node.js installation, the installer will continue with the existing version. You can manually update Node.js later:
+
+```batch
+winget upgrade OpenJS.NodeJS.LTS
+```
+
+Or download the latest LTS version from [nodejs.org](https://nodejs.org/).
+
+## Additional Resources
+
+- [Node.js Official Documentation](https://nodejs.org/en/docs/)
+- [winget Documentation](https://learn.microsoft.com/en-us/windows/package-manager/winget/)
+- [Node.js Installation Guide](https://nodejs.org/en/download/package-manager/)
+
+## Still Having Issues?
+
+If you've tried all solutions and still cannot install Node.js:
+
+1. Check your Windows version: Run `winver` in Command Prompt
+2. Verify you have administrator rights
+3. Check for corporate policies that may block software installation
+4. Try installing Node.js using the manual installer from nodejs.org
+5. Consult your IT department if on a managed computer
+
+<Info>
+  Once Node.js is successfully installed and detected, proceed to the next troubleshooting guide if you encounter issues with Gemini CLI installation.
+</Info>

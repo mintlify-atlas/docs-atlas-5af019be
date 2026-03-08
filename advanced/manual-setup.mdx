@@ -1,0 +1,213 @@
+---
+title: Manual Installation
+description: Step-by-step guide for manually installing Gemini CLI without the automated installer
+---
+
+If you prefer to install Gemini CLI manually or if the automated installer doesn't work for your environment, follow these steps to set up everything yourself.
+
+## Prerequisites
+
+Before you begin, ensure you have:
+- Windows 10 or Windows 11
+- Administrator access to your computer
+- Active internet connection
+
+## Installation Steps
+
+<Steps>
+  <Step title="Install Node.js">
+    Gemini CLI requires Node.js to run. Install the LTS (Long Term Support) version using one of these methods:
+
+    ### Option A: Using winget (Recommended)
+
+    Open PowerShell or Command Prompt and run:
+
+    ```bash
+    winget install OpenJS.NodeJS.LTS --silent --accept-source-agreements --accept-package-agreements
+    ```
+
+    ### Option B: Manual Download
+
+    1. Visit [nodejs.org](https://nodejs.org/)
+    2. Download the LTS version for Windows
+    3. Run the installer and follow the installation wizard
+    4. Accept all default settings during installation
+
+    <Note>
+      After installing Node.js, **close and reopen** your terminal window for the changes to take effect.
+    </Note>
+
+    ### Verify Installation
+
+    After installation, verify Node.js is correctly installed:
+
+    ```bash
+    node -v
+    ```
+
+    This should display the installed Node.js version (e.g., `v20.11.0`).
+  </Step>
+
+  <Step title="Install Gemini CLI Globally">
+    With Node.js installed, install the Gemini CLI package globally using npm:
+
+    ```bash
+    npm install -g @google/gemini-cli
+    ```
+
+    This process may take 1-2 minutes depending on your internet connection.
+
+    <Warning>
+      If you encounter permission errors, try running your terminal as Administrator:
+      - Right-click on PowerShell or Command Prompt
+      - Select "Run as administrator"
+      - Run the installation command again
+    </Warning>
+
+    ### Verify Installation
+
+    Confirm Gemini CLI is installed correctly:
+
+    ```bash
+    gemini --version
+    ```
+
+    Or simply check if the command is available:
+
+    ```bash
+    where gemini
+    ```
+  </Step>
+
+  <Step title="Create Desktop Shortcut (Optional)">
+    For convenient access, create a desktop shortcut that launches Gemini CLI:
+
+    ### Using PowerShell
+
+    Run this command in PowerShell:
+
+    ```powershell
+    $WshShell = New-Object -ComObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut("$env:USERPROFILE\Desktop\Gemini CLI.lnk")
+    $Shortcut.TargetPath = "powershell.exe"
+    $Shortcut.Arguments = "-ExecutionPolicy Bypass -NoExit -Command `"gemini`""
+    $Shortcut.WorkingDirectory = $env:USERPROFILE
+    $Shortcut.IconLocation = "powershell.exe,0"
+    $Shortcut.Description = "Launch Gemini CLI"
+    $Shortcut.Save()
+    ```
+
+    ### Manual Shortcut Creation
+
+    Alternatively, create the shortcut manually:
+
+    1. Right-click on your desktop
+    2. Select **New** → **Shortcut**
+    3. Enter this as the location:
+       ```
+       powershell.exe -ExecutionPolicy Bypass -NoExit -Command "gemini"
+       ```
+    4. Name it "Gemini CLI"
+    5. Click **Finish**
+
+    <Note>
+      The shortcut launches PowerShell and automatically runs the `gemini` command, keeping the window open for interaction.
+    </Note>
+  </Step>
+
+  <Step title="Initial Configuration">
+    Launch Gemini CLI for the first time:
+
+    ```bash
+    gemini
+    ```
+
+    Or double-click the desktop shortcut if you created one.
+
+    You'll be prompted to configure:
+
+    ### 1. Select Theme
+    Choose your preferred color theme or press Enter to use the default.
+
+    ### 2. Select Auth Method
+    Choose **"Login with Google"** (should be pre-selected) and press Enter.
+
+    A browser window will open. Sign in with your Google account to authenticate Gemini CLI.
+
+    <Note>
+      After authentication, you can start using all Gemini CLI features immediately.
+    </Note>
+  </Step>
+</Steps>
+
+## Troubleshooting
+
+### Node.js command not found
+
+If `node` command is not recognized after installation:
+
+1. Close all terminal windows
+2. Open a new terminal
+3. Try the command again
+
+If it still doesn't work, manually add Node.js to your PATH:
+
+1. Open **System Environment Variables**
+2. Edit the **Path** variable
+3. Add: `C:\Program Files\nodejs`
+4. Restart your terminal
+
+### npm install fails with permission errors
+
+**Solution 1:** Run terminal as Administrator
+
+**Solution 2:** Clear npm cache and retry:
+
+```bash
+npm cache clean --force
+npm install -g @google/gemini-cli
+```
+
+### Gemini command not found after installation
+
+1. Verify the global npm packages directory is in your PATH:
+   ```bash
+   npm config get prefix
+   ```
+
+2. The output path should be in your system PATH. If not, add it manually.
+
+3. Typical npm global installation paths:
+   - `C:\Users\<YourUsername>\AppData\Roaming\npm`
+   - `C:\Program Files\nodejs`
+
+## Updating Node.js
+
+To update Node.js to the latest LTS version:
+
+### Using winget
+
+```bash
+winget upgrade OpenJS.NodeJS.LTS
+```
+
+### Manual Update
+
+1. Download the latest LTS installer from [nodejs.org](https://nodejs.org/)
+2. Run the installer (it will upgrade your existing installation)
+
+<Note>
+  The automated installer checks for and applies Node.js updates automatically. Manual installations require periodic updates.
+</Note>
+
+## Next Steps
+
+After successful installation:
+
+- Learn about [authentication](/usage/authentication)
+- Use the [desktop shortcut](/usage/desktop-shortcut) for easy access
+- Check the [troubleshooting guide](/troubleshooting/common-issues) if you encounter issues
+
+<Warning>
+  Keep Node.js and Gemini CLI updated regularly for the latest features, performance improvements, and security patches.
+</Warning>

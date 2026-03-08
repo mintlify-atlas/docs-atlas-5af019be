@@ -1,80 +1,151 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: 'Quick Start Guide'
+description: 'Get up and running with Gemini CLI Easy Installer in minutes'
 ---
 
-## Get started in three steps
+This guide will walk you through downloading, extracting, and running the Gemini CLI Easy Installer on your Windows PC.
 
-Get your documentation site running locally and make your first customization.
+## Prerequisites
 
-### Step 1: Set up your local environment
+Before you begin, ensure you have:
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
-
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
+- **Windows 10 or Windows 11** (the installer uses winget, which requires recent Windows versions)
+- **Internet connection** (required for downloading Node.js and Gemini CLI)
+- **App Installer** from Microsoft Store (required for winget command support)
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+If you don't have winget available, you'll need to install "App Installer" from the Microsoft Store before proceeding.
+</Note>
+
+## Installation Steps
+
+<Steps>
+  <Step title="Download the Installer">
+    Navigate to the [GitHub Releases page](https://github.com/KM170/gemini-cli-easy-installer/releases) and download the latest `.zip` file.
+    
+    The file will be named something like `gemini-cli-easy-installer-[version].zip`.
+  </Step>
+
+  <Step title="Extract the ZIP File">
+    1. Locate the downloaded `.zip` file in your Downloads folder
+    2. Right-click on the file
+    3. Select **"Extract All..."** from the context menu
+    4. Choose a destination folder and click **Extract**
+    
+    <Note>
+    Make sure to fully extract the file before running. Do not run the batch file directly from inside the ZIP archive.
+    </Note>
+  </Step>
+
+  <Step title="Run the Installer">
+    Double-click the extracted `.bat` file to launch the installer.
+    
+    <Warning>
+    If the installer doesn't run properly, try right-clicking the `.bat` file and selecting **"Run as administrator"**. This can resolve permission-related issues.
+    </Warning>
+    
+    The installer will automatically:
+    - Check if Node.js is installed on your PC
+    - Install or update Node.js LTS if needed
+    - Install or update the Gemini CLI to the latest version
+    - Create a desktop shortcut for easy access
+  </Step>
+
+  <Step title="Complete Node.js Installation (if needed)">
+    If Node.js was not previously installed, the batch file will install it using winget. After installation completes:
+    
+    1. The installer will pause and display an important message
+    2. **Close the current window**
+    3. **Run the `.bat` file again** to continue the setup
+    
+    <Note>
+    This restart is required because Node.js needs to be recognized by the system. The second run will complete the Gemini CLI installation.
+    </Note>
+  </Step>
+
+  <Step title="Launch Gemini CLI">
+    After successful installation:
+    
+    1. Press any key when prompted
+    2. A new PowerShell window will automatically open with Gemini CLI running
+    3. Follow the on-screen prompts to complete initial configuration:
+       - **Select Theme**: Press Enter to use the default theme
+       - **Select Auth Method**: Choose "Login with Google" and press Enter
+    4. A browser window will open for Google account authentication
+    5. Sign in with your Google account to complete setup
+  </Step>
+</Steps>
+
+## What Gets Installed
+
+The installer performs the following operations:
+
+### Node.js Setup
+- Checks for existing Node.js installation
+- Installs Node.js LTS if not present
+- Updates to the latest LTS version if already installed
+- Uses `winget install OpenJS.NodeJS.LTS` for installation
+
+### Gemini CLI Installation
+- Installs the official `@google/gemini-cli` package globally via npm
+- Automatically updates to the latest version if already installed
+- Verifies successful installation by checking for the `gemini` command
+
+### Desktop Shortcut Creation
+- Creates a shortcut named **"Gemini CLI.lnk"** on your desktop
+- The shortcut launches PowerShell with the Gemini CLI automatically loaded
+- Working directory is set to your user profile folder
+
+## Using Gemini CLI After Installation
+
+Once setup is complete, you can launch Gemini CLI in two ways:
+
+1. **Desktop Shortcut**: Double-click the "Gemini CLI" shortcut on your desktop
+2. **Command Line**: Open PowerShell or Command Prompt and type `gemini`
+
+<Note>
+The desktop shortcut provides the most convenient way to access Gemini CLI, as it automatically configures the PowerShell environment.
+</Note>
+
+## Troubleshooting
+
+### Installation Fails
+
+If the Gemini CLI installation fails, check the following:
+
+1. **Network Connection**: Ensure you have a stable internet connection
+2. **Run as Administrator**: Right-click the `.bat` file and select "Run as administrator"
+3. **Clear npm Cache**: Open Command Prompt as administrator and run:
+   ```batch
+   npm cache clean --force
+   ```
+   Then run the installer again
+
+### winget Command Not Found
+
+If you see an error about winget not being available:
+
+- Install "App Installer" from the Microsoft Store
+- Make sure you're running Windows 10 (version 1809 or later) or Windows 11
+- Restart your computer after installing App Installer
+
+### Gemini Command Not Recognized
+
+If the `gemini` command is not recognized after installation:
+
+1. Close and reopen your terminal window
+2. Verify Node.js is in your PATH by running `node -v`
+3. Check if Gemini CLI is installed: `npm list -g @google/gemini-cli`
+4. Try running the installer again as administrator
+
+## Next Steps
+
+After completing the installation, you can:
+
+- Start chatting with Gemini directly from your terminal
+- Explore Gemini CLI commands and features
+- Configure additional settings and preferences
+
+<Note>
+The first time you launch Gemini CLI, you'll need to authenticate with your Google account. This is a one-time setup process.
 </Note>

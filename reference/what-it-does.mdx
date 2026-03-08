@@ -1,0 +1,287 @@
+---
+title: 'What It Does'
+description: 'Technical breakdown of the Gemini CLI Easy Installer batch script'
+---
+
+## Overview
+
+The Gemini CLI Easy Installer is a Windows batch script (`gemini-cli-easy-installer-20250706.bat`) that automates the complete setup process for Google's Gemini CLI tool. This page provides a detailed technical explanation of what the script does at each step.
+
+## Script Architecture
+
+The installer follows a sequential workflow with four main phases:
+
+1. **Node.js Detection & Installation**
+2. **Node.js Version Management**
+3. **Gemini CLI Installation**
+4. **Desktop Shortcut Creation**
+
+---
+
+## Phase 1: Node.js Detection & Installation
+
+### Path Configuration
+
+The script begins by ensuring Node.js is in the system PATH:
+
+```batch
+set "PATH=%ProgramFiles%\nodejs;%PATH%"
+```
+
+<Info>
+This line adds the standard Node.js installation directory to the PATH for the current session, ensuring the `node` command can be found even if it was just installed.
+</Info>
+
+### Detection Logic
+
+The script checks if Node.js is already installed:
+
+```batch
+where node >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+  rem Node.js is not installed
+)
+```
+
+**Reference:** `gemini-cli-easy-installer-20250706.bat:13-15`
+
+The `where` command searches for the `node` executable in the PATH. If it returns a non-zero error level, Node.js is not found.
+
+### Winget Availability Check
+
+Before attempting installation, the script verifies that Windows Package Manager (winget) is available:
+
+```batch
+where winget >nul 2>&1 || (
+  echo [Error] winget command not found.
+  echo Please install "App Installer" from Microsoft Store.
+  pause
+  exit /b 1
+)
+```
+
+**Reference:** `gemini-cli-easy-installer-20250706.bat:19-26`
+
+<Warning>
+If winget is not available, the script exits with error code 1. Winget is required for automated Node.js installation.
+</Warning>
+
+### Node.js Installation
+
+When Node.js is not detected, the script installs it automatically:
+
+```batch
+winget install OpenJS.NodeJS.LTS --silent --accept-source-agreements --accept-package-agreements
+```
+
+**Reference:** `gemini-cli-easy-installer-20250706.bat:30`
+
+**Parameters explained:**
+- `--silent`: Performs installation without user interaction
+- `--accept-source-agreements`: Automatically accepts source repository agreements
+- `--accept-package-agreements`: Automatically accepts package license agreements
+
+### Restart Requirement
+
+After installing Node.js, the script **must exit** to allow environment variables to be updated:
+
+```batch
+echo ============================== IMPORTANT ==============================
+echo   Node.js installation completed.
+echo.
+echo   To continue setup, you must restart this window
+echo   to reflect new system settings.
+echo   
+echo   Please close this window and run this file again.
+echo ====================================================================
+pause
+exit /b
+```
+
+**Reference:** `gemini-cli-easy-installer-20250706.bat:33-44`
+
+<Note>
+This restart is necessary because Windows only updates PATH variables for new processes. The current batch session won't see the newly installed Node.js without restarting.
+</Note>
+
+---
+
+## Phase 2: Node.js Version Management
+
+This phase only executes if Node.js was already installed on the system.
+
+### Current Version Detection
+
+The script displays the currently installed version:
+
+```batch
+echo --- [Step 1/3] Checking Node.js status...
+echo   Installed version:
+node -v
+```
+
+**Reference:** `gemini-cli-easy-installer-20250706.bat:49-51`
+
+### Smart Update Check
+
+The script implements a version comparison mechanism:
+
+```batch
+for /f "tokens=*" %%v in ('node -v') do set "ver_before=%%v"
+winget upgrade OpenJS.NodeJS.LTS --silent >nul 2>&1
+for /f "tokens=*" %%v in ('node -v') do set "ver_after=%%v"
+
+if "!ver_before!" NEQ "!ver_after!" (
+  echo   OK. Update applied, now on latest version.
+) else (
+  echo   OK. Already on latest version.
+)
+```
+
+**Reference:** `gemini-cli-easy-installer-20250706.bat:54-68`
+
+**How it works:**
+1. Captures current version before update attempt
+2. Silently attempts to upgrade via winget
+3. Captures version after update attempt
+4. Compares versions to determine if update occurred
+
+<Info>
+The script uses `EnableDelayedExpansion` (line 2) to allow variable expansion within the if block using `!var!` syntax instead of `%var%`.
+</Info>
+
+---
+
+## Phase 3: Gemini CLI Installation
+
+### NPM Installation
+
+The script uses npm (Node Package Manager) to install the Gemini CLI globally:
+
+```batch
+echo --- [Step 2/3] Installing/Updating Gemini CLI...
+echo   (This process may take 1-2 minutes)
+
+call npm install -g @google/gemini-cli
+```
+
+**Reference:** `gemini-cli-easy-installer-20250706.bat:71-75`
+
+**Command breakdown:**
+- `call`: Ensures the batch script waits for npm to complete
+- `npm install -g`: Installs package globally (available system-wide)
+- `@google/gemini-cli`: The official Google Gemini CLI package from npm registry
+
+### Installation Verification
+
+After installation, the script verifies the `gemini` command is available:
+
+```batch
+where gemini >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+  echo [Error] Gemini CLI installation failed.
+  echo   Possible causes and solutions:
+  echo   1. Network connection issue
+  echo   2. Permission issue - run as administrator
+  echo   3. npm cache issue - run: npm cache clean --force
+  pause
+  exit /b 1
+)
+```
+
+**Reference:** `gemini-cli-easy-installer-20250706.bat:78-98`
+
+<Warning>
+If the `gemini` command is not found after installation, the script provides troubleshooting steps and exits with error code 1.
+</Warning>
+
+---
+
+## Phase 4: Desktop Shortcut Creation
+
+### PowerShell Shortcut Creation
+
+The script creates a desktop shortcut using PowerShell's COM object:
+
+```batch
+set "SHORTCUT_PATH=%USERPROFILE%\Desktop\Gemini CLI.lnk"
+powershell -ExecutionPolicy Bypass -Command "$WshShell = New-Object -ComObject WScript.Shell; try { $Shortcut = $WshShell.CreateShortcut('%SHORTCUT_PATH%'); $Shortcut.TargetPath = 'powershell.exe'; $Shortcut.Arguments = '-ExecutionPolicy Bypass -NoExit -Command \"gemini\"'; $Shortcut.WorkingDirectory = '%USERPROFILE%'; $Shortcut.IconLocation = 'powershell.exe,0'; $Shortcut.Description = 'Launch Gemini CLI'; $Shortcut.Save() } catch {}" >nul 2>&1
+```
+
+**Reference:** `gemini-cli-easy-installer-20250706.bat:105-106`
+
+**Shortcut properties:**
+- **Target**: `powershell.exe`
+- **Arguments**: `-ExecutionPolicy Bypass -NoExit -Command "gemini"`
+  - `-ExecutionPolicy Bypass`: Skips PowerShell script execution policy
+  - `-NoExit`: Keeps PowerShell window open after command completes
+  - `-Command "gemini"`: Runs the gemini command
+- **Working Directory**: User's home directory (`%USERPROFILE%`)
+- **Icon**: PowerShell icon (index 0)
+
+### Shortcut Verification
+
+```batch
+if exist "%SHORTCUT_PATH%" (
+  echo   OK. Created "Gemini CLI.lnk" shortcut on desktop.
+) else (
+  echo   [Warning] Shortcut creation failed.
+)
+```
+
+**Reference:** `gemini-cli-easy-installer-20250706.bat:108-112`
+
+<Note>
+Shortcut creation failure is treated as a warning, not an error. The installation continues successfully even if the shortcut cannot be created.
+</Note>
+
+---
+
+## Final Steps: Auto-Launch
+
+### User Instructions Display
+
+The script displays comprehensive first-run instructions:
+
+```batch
+echo   Important: First Launch Procedure
+echo   (1) Select Theme - Press Enter if no preference
+echo   (2) Select Auth Method - Choose "Login with Google" and press Enter
+echo   A browser will open for Google account authentication.
+```
+
+**Reference:** `gemini-cli-easy-installer-20250706.bat:118-128`
+
+### Automatic Launch
+
+After user acknowledges instructions, the script launches Gemini CLI:
+
+```batch
+echo Press any key to launch Gemini CLI in a new PowerShell window...
+pause >nul
+start "Gemini CLI" powershell -ExecutionPolicy Bypass -NoExit -Command "gemini"
+exit /b
+```
+
+**Reference:** `gemini-cli-easy-installer-20250706.bat:138-142`
+
+The `start` command launches a new PowerShell window with:
+- Window title: "Gemini CLI"
+- Same parameters as the desktop shortcut
+- Original batch script then exits cleanly
+
+---
+
+## Error Handling Strategy
+
+The script implements a multi-layered error handling approach:
+
+1. **Prerequisite Validation**: Checks for winget before attempting Node.js installation
+2. **Installation Verification**: Confirms commands are available after installation
+3. **Informative Error Messages**: Provides specific troubleshooting steps for each failure scenario
+4. **Graceful Degradation**: Shortcut creation failure doesn't prevent successful installation
+5. **Exit Codes**: Returns error code 1 for failures, 0 for success
+
+<Info>
+The script uses `>nul 2>&1` extensively to suppress command output, keeping the user interface clean and focused on essential information.
+</Info>

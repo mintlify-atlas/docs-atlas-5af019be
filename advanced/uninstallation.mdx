@@ -1,0 +1,267 @@
+---
+title: Uninstallation Guide
+description: Complete guide for removing Gemini CLI and its dependencies from your system
+---
+
+This guide covers how to completely remove Gemini CLI from your Windows system, including optional removal of Node.js if you no longer need it.
+
+## Uninstallation Overview
+
+Uninstalling Gemini CLI involves three main steps:
+
+1. Remove the Gemini CLI package
+2. Delete the desktop shortcut (if created)
+3. Optionally uninstall Node.js
+
+## Uninstallation Steps
+
+<Steps>
+  <Step title="Uninstall Gemini CLI Package">
+    Open PowerShell or Command Prompt and run:
+
+    ```bash
+    npm uninstall -g @google/gemini-cli
+    ```
+
+    This removes the Gemini CLI package from your system's global npm packages.
+
+    ### Verify Removal
+
+    Confirm Gemini CLI has been removed:
+
+    ```bash
+    where gemini
+    ```
+
+    You should see a message indicating the command was not found.
+
+    <Note>
+      This command only removes the Gemini CLI package. Node.js and npm remain installed.
+    </Note>
+  </Step>
+
+  <Step title="Remove Desktop Shortcut">
+    If you created a desktop shortcut during installation, delete it:
+
+    ### Manual Deletion
+
+    1. Navigate to your Desktop
+    2. Find the **"Gemini CLI.lnk"** shortcut
+    3. Right-click and select **Delete**
+    4. Confirm deletion
+
+    ### Using Command Line
+
+    Run this command in PowerShell:
+
+    ```powershell
+    Remove-Item "$env:USERPROFILE\Desktop\Gemini CLI.lnk" -ErrorAction SilentlyContinue
+    ```
+
+    Or in Command Prompt:
+
+    ```batch
+    del "%USERPROFILE%\Desktop\Gemini CLI.lnk"
+    ```
+  </Step>
+
+  <Step title="Clear npm Cache (Optional)">
+    To free up disk space and remove any cached Gemini CLI data:
+
+    ```bash
+    npm cache clean --force
+    ```
+
+    <Warning>
+      This clears the entire npm cache, not just Gemini CLI. This is safe but may cause slightly slower installation times for other npm packages in the future.
+    </Warning>
+  </Step>
+
+  <Step title="Uninstall Node.js (Optional)">
+    If you no longer need Node.js for other applications, you can uninstall it:
+
+    <Warning>
+      **Before uninstalling Node.js:**
+      
+      Check if you have other Node.js applications or development tools that depend on it. Removing Node.js will affect all npm-based tools on your system.
+      
+      To see installed global packages:
+      ```bash
+      npm list -g --depth=0
+      ```
+    </Warning>
+
+    ### Option A: Using winget
+
+    ```bash
+    winget uninstall OpenJS.NodeJS.LTS
+    ```
+
+    ### Option B: Using Windows Settings
+
+    1. Open **Settings** → **Apps** → **Installed apps**
+    2. Search for "Node.js"
+    3. Click the three dots menu
+    4. Select **Uninstall**
+    5. Confirm the uninstallation
+
+    ### Option C: Using Control Panel
+
+    1. Open **Control Panel**
+    2. Navigate to **Programs** → **Programs and Features**
+    3. Find **Node.js** in the list
+    4. Right-click and select **Uninstall**
+    5. Follow the uninstallation wizard
+
+    ### Clean Up Remaining Files
+
+    After uninstalling Node.js, some files may remain. You can manually delete these directories:
+
+    ```powershell
+    # Remove npm global directory
+    Remove-Item "$env:APPDATA\npm" -Recurse -Force -ErrorAction SilentlyContinue
+    
+    # Remove npm cache
+    Remove-Item "$env:APPDATA\npm-cache" -Recurse -Force -ErrorAction SilentlyContinue
+    
+    # Remove Node.js user data
+    Remove-Item "$env:USERPROFILE\.node" -Recurse -Force -ErrorAction SilentlyContinue
+    Remove-Item "$env:USERPROFILE\.npm" -Recurse -Force -ErrorAction SilentlyContinue
+    ```
+
+    <Note>
+      These cleanup commands are optional. Windows typically removes most Node.js files during uninstallation.
+    </Note>
+  </Step>
+</Steps>
+
+## Verify Complete Removal
+
+After completing the uninstallation steps, verify everything has been removed:
+
+<CodeGroup>
+  ```bash Check Gemini CLI
+  where gemini
+  # Should return: INFO: Could not find files for the given pattern(s).
+  ```
+
+  ```bash Check npm (if Node.js was removed)
+  where npm
+  # Should return: INFO: Could not find files for the given pattern(s).
+  ```
+
+  ```bash Check Node.js (if removed)
+  where node
+  # Should return: INFO: Could not find files for the given pattern(s).
+  ```
+</CodeGroup>
+
+## Cleaning Environment Variables
+
+If you uninstalled Node.js but still see references in your PATH:
+
+1. Open **System Properties** → **Environment Variables**
+2. Under **User variables** and **System variables**, select **Path**
+3. Click **Edit**
+4. Remove any entries containing:
+   - `nodejs`
+   - `npm`
+   - `AppData\Roaming\npm`
+5. Click **OK** to save
+6. Restart any open terminal windows
+
+## Reinstalling Gemini CLI
+
+If you want to reinstall Gemini CLI later:
+
+### If Node.js is Still Installed
+
+Simply run:
+
+```bash
+npm install -g @google/gemini-cli
+```
+
+### If Node.js Was Removed
+
+Follow the complete [Manual Installation Guide](/advanced/manual-setup) or download from the [GitHub releases page](https://github.com/KM170/gemini-cli-easy-installer/releases).
+
+## Troubleshooting Uninstallation
+
+### npm uninstall command not found
+
+If npm is not available, Node.js may already be uninstalled. Skip to removing the desktop shortcut and cleaning up remaining files.
+
+### Permission denied errors
+
+Run your terminal as Administrator:
+
+1. Right-click **PowerShell** or **Command Prompt**
+2. Select **Run as administrator**
+3. Run the uninstall commands again
+
+### Files remain after uninstallation
+
+Some configuration files may remain in your user directory:
+
+```powershell
+# Remove Gemini CLI configuration (if exists)
+Remove-Item "$env:USERPROFILE\.gemini" -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item "$env:APPDATA\gemini-cli" -Recurse -Force -ErrorAction SilentlyContinue
+```
+
+<Warning>
+  Removing configuration directories will delete all saved settings and authentication data. You'll need to reconfigure if you reinstall.
+</Warning>
+
+## Partial Uninstallation
+
+If you want to keep Node.js but remove only Gemini CLI:
+
+1. Complete **Step 1** (Uninstall Gemini CLI Package)
+2. Complete **Step 2** (Remove Desktop Shortcut)
+3. **Skip Steps 3-4** (Keep npm cache and Node.js)
+
+This is useful if you use Node.js for other projects or tools.
+
+## Data Backup Before Uninstallation
+
+If you have custom configurations or data you want to preserve:
+
+<Steps>
+  <Step title="Backup Configuration">
+    Check for Gemini CLI configuration files:
+
+    ```powershell
+    # List potential config directories
+    Get-ChildItem "$env:USERPROFILE\.gemini" -ErrorAction SilentlyContinue
+    Get-ChildItem "$env:APPDATA\gemini-cli" -ErrorAction SilentlyContinue
+    ```
+
+    Copy any important files to a backup location before uninstalling.
+  </Step>
+
+  <Step title="Export Settings">
+    If Gemini CLI has an export feature, use it before uninstalling:
+
+    ```bash
+    gemini config export > gemini-config-backup.json
+    ```
+
+    <Note>
+      The exact export command may vary depending on your Gemini CLI configuration.
+    </Note>
+  </Step>
+</Steps>
+
+## Need Help?
+
+If you encounter issues during uninstallation:
+
+- Check the [Troubleshooting Guide](/troubleshooting/common-issues)
+- Visit the [GitHub Issues](https://github.com/KM170/gemini-cli-easy-installer/issues)
+- Review the [Node.js Installation](/troubleshooting/node-installation) troubleshooting page
+
+<Note>
+  After complete uninstallation, you can safely reinstall Gemini CLI at any time using the automated installer or manual installation method.
+</Note>

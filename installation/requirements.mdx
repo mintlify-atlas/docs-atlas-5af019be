@@ -1,0 +1,89 @@
+---
+title: System Requirements
+description: Prerequisites and system requirements for installing Gemini CLI Easy Installer
+---
+
+Before installing the Gemini CLI Easy Installer, ensure your system meets the following requirements.
+
+## Operating System
+
+The Gemini CLI Easy Installer is designed specifically for **Windows** operating systems.
+
+<Info>
+The installer has been tested and confirmed to work on Windows 10 and Windows 11.
+</Info>
+
+## Windows Package Manager (winget)
+
+The installer uses `winget` to automatically install and update Node.js. This tool is required for the installation process.
+
+<Steps>
+  <Step title="Check if winget is installed">
+    Open a Command Prompt or PowerShell window and run:
+    
+    ```bash
+    winget --version
+    ```
+    
+    If winget is installed, you'll see a version number.
+  </Step>
+  
+  <Step title="Install winget if needed">
+    If winget is not found, you need to install it from the Microsoft Store:
+    
+    1. Open the **Microsoft Store** app
+    2. Search for **"App Installer"**
+    3. Click **Install** or **Update**
+  </Step>
+</Steps>
+
+<Note>
+Windows 11 and recent versions of Windows 10 come with winget pre-installed. If you're using an older version of Windows 10, you may need to install it manually.
+</Note>
+
+## Administrator Privileges
+
+While the installer can be run with standard user permissions, some scenarios may require administrator privileges:
+
+- If Node.js installation fails with standard permissions
+- If you encounter permission errors during npm package installation
+- If the npm cache needs to be cleared
+
+<Warning>
+If the installer doesn't work properly on first run, try running the `.bat` file as administrator by right-clicking it and selecting **"Run as administrator"**.
+</Warning>
+
+## Internet Connection
+
+An active internet connection is required for:
+
+- Downloading and installing Node.js LTS (if not already installed)
+- Updating Node.js to the latest version
+- Installing the `@google/gemini-cli` package from npm
+- Updating the Gemini CLI to the latest version
+
+<Info>
+The installation process may take 1-2 minutes depending on your internet connection speed, especially when installing Node.js for the first time.
+</Info>
+
+## Disk Space
+
+Ensure you have sufficient disk space for:
+
+- **Node.js**: Approximately 50-100 MB
+- **Gemini CLI**: Approximately 20-50 MB
+- **npm packages and dependencies**: Additional space may be required
+
+## Summary Checklist
+
+Before proceeding with the installation, verify:
+
+- [ ] You are running Windows 10 or Windows 11
+- [ ] `winget` is installed and accessible
+- [ ] You have an active internet connection
+- [ ] You have sufficient disk space (at least 200 MB free)
+- [ ] You can run the installer as administrator if needed
+
+<Note>
+If Node.js is already installed on your system, the installer will check for updates and upgrade to the latest LTS version if a newer version is available.
+</Note>

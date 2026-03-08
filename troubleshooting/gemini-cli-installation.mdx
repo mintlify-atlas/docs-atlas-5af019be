@@ -1,0 +1,454 @@
+---
+title: "Gemini CLI Installation Issues"
+description: "Troubleshooting Gemini CLI installation failures and npm-related problems"
+---
+
+## Overview
+
+After Node.js is verified in Step 1, the installer proceeds to Step 2/3: installing or updating the Gemini CLI package using npm. This page addresses issues that occur during the `npm install -g @google/gemini-cli` command.
+
+## Error: Gemini CLI Installation Failed
+
+### Problem Description
+
+After the npm installation attempts to run, you see this error:
+
+```
+[エラー] Gemini CLIのインストールに失敗しました。
+
+  ■ 考えられる原因と対処法
+  --------------------------------------------------------
+   1. ネットワーク接続の問題
+      ⇒ インターネット接続を確認してください。
+
+   2. 権限の問題
+      ⇒ このバッチファイルを「管理者として実行」で再実行してください。
+
+   3. npm キャッシュの問題
+      ⇒ 管理者権限のコマンドプロンプトで以下を実行し、再実行してください:
+         npm cache clean --force
+  --------------------------------------------------------
+```
+
+**English translation:**
+```
+[Error] Gemini CLI installation failed.
+
+  ■ Possible causes and solutions
+  --------------------------------------------------------
+   1. Network connection issues
+      ⇒ Please check your internet connection.
+
+   2. Permission issues
+      ⇒ Please re-run this batch file as "Run as administrator".
+
+   3. npm cache issues
+      ⇒ Run the following in an administrator Command Prompt, then retry:
+         npm cache clean --force
+  --------------------------------------------------------
+```
+
+### Root Cause
+
+The installer verifies that the `gemini` command is available after running `npm install -g @google/gemini-cli`. If the command is not found, it indicates the installation failed.
+
+**Source code reference:** `gemini-cli-easy-installer-20250706.bat:78-97`
+
+```batch
+call npm install -g @google/gemini-cli
+
+rem インストールの成功を、コマンドの存在有無で確実に判定
+where gemini >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+  echo.
+  echo [エラー] Gemini CLIのインストールに失敗しました。
+  echo.
+  echo   ■ 考えられる原因と対処法
+  echo   --------------------------------------------------------
+  echo    1. ネットワーク接続の問題
+  echo       ⇒ インターネット接続を確認してください。
+  echo.
+  echo    2. 権限の問題
+  echo       ⇒ このバッチファイルを「管理者として実行」で再実行してください。
+  echo.
+  echo    3. npm キャッシュの問題
+  echo       ⇒ 管理者権限のコマンドプロンプトで以下を実行し、再実行してください:
+  echo          npm cache clean --force
+  echo   --------------------------------------------------------
+  echo.
+  pause
+  exit /b 1
+)
+```
+
+## Solution 1: Network Connection Issues
+
+### Diagnosis
+
+The npm installation requires downloading the `@google/gemini-cli` package from the npm registry. Network issues can prevent this download.
+
+### Troubleshooting Steps
+
+<Steps>
+  <Step title="Verify internet connectivity">
+    Test your internet connection:
+    
+    ```batch
+    ping google.com
+    ```
+    
+    **Expected output:** You should see replies from Google's servers.
+    
+    If the ping fails, check your network connection before proceeding.
+  </Step>
+  
+  <Step title="Test npm registry access">
+    Specifically test access to the npm registry:
+    
+    ```batch
+    npm ping
+    ```
+    
+    **Expected output:**
+    ```
+    npm notice PING https://registry.npmjs.org/
+    npm notice PONG 200ms
+    ```
+    
+    <Warning>
+      If npm ping fails, you may be behind a corporate firewall or proxy that blocks npm registry access.
+    </Warning>
+  </Step>
+  
+  <Step title="Configure proxy settings (if needed)">
+    If you're behind a corporate proxy, configure npm:
+    
+    ```batch
+    npm config set proxy http://your-proxy:port
+    npm config set https-proxy http://your-proxy:port
+    ```
+    
+    Contact your IT department for proxy server details.
+  </Step>
+  
+  <Step title="Retry the installer">
+    After verifying network connectivity, run the installer again:
+    
+    ```batch
+    gemini-cli-easy-installer-20250706.bat
+    ```
+  </Step>
+</Steps>
+
+### Check Firewall Settings
+
+Some firewalls may block npm:
+
+1. Open **Windows Defender Firewall**
+2. Click "Allow an app through firewall"
+3. Ensure **Node.js** and **npm** are allowed
+4. If not listed, click "Allow another app" and add:
+   - `C:\Program Files\nodejs\node.exe`
+   - `C:\Program Files\nodejs\npm.cmd`
+
+## Solution 2: Permission Issues
+
+### Diagnosis
+
+Global npm installations (using `-g` flag) require write access to Node.js's global directories. Without proper permissions, the installation will fail.
+
+### Run as Administrator
+
+<Steps>
+  <Step title="Locate the installer file">
+    Find `gemini-cli-easy-installer-20250706.bat` in File Explorer.
+  </Step>
+  
+  <Step title="Run as administrator">
+    Right-click the file and select **"Run as administrator"**.
+    
+    <Info>
+      This is the most common solution for permission-related installation failures.
+    </Info>
+  </Step>
+  
+  <Step title="Confirm UAC prompt">
+    Click **"Yes"** when the User Account Control dialog appears.
+  </Step>
+  
+  <Step title="Wait for installation">
+    The installer will now run with elevated privileges and should complete successfully.
+  </Step>
+</Steps>
+
+### Alternative: Configure npm for User-Level Installs
+
+If you cannot run as administrator, configure npm to use a user-level directory:
+
+```batch
+# Create a directory for global packages
+mkdir "%APPDATA%\npm"
+
+# Configure npm to use this directory
+npm config set prefix "%APPDATA%\npm"
+
+# Add to PATH (run in PowerShell as Administrator)
+[Environment]::SetEnvironmentVariable("Path", $env:Path + ";$env:APPDATA\npm", "User")
+```
+
+After this configuration, run the installer again.
+
+## Solution 3: npm Cache Issues
+
+### Diagnosis
+
+npm maintains a cache of downloaded packages. If this cache becomes corrupted, installations may fail even with good network connectivity and proper permissions.
+
+### Clear npm Cache
+
+<Steps>
+  <Step title="Open Command Prompt as Administrator">
+    1. Press **Win + X**
+    2. Select **"Command Prompt (Admin)"** or **"Windows Terminal (Admin)"**
+    3. Click **"Yes"** on the UAC prompt
+  </Step>
+  
+  <Step title="Clean the npm cache">
+    Run the following command:
+    
+    ```batch
+    npm cache clean --force
+    ```
+    
+    **Expected output:**
+    ```
+    npm WARN using --force Recommended protections disabled.
+    ```
+    
+    <Info>
+      The `--force` flag is necessary to ensure complete cache cleanup, even if npm detects potential issues.
+    </Info>
+  </Step>
+  
+  <Step title="Verify cache is clean">
+    Check the cache status:
+    
+    ```batch
+    npm cache verify
+    ```
+    
+    **Expected output:**
+    ```
+    Cache verified and compressed (~\AppData\Local\npm-cache):
+    Content verified: 0 (0 bytes)
+    Index entries: 0
+    Finished in 0.123s
+    ```
+  </Step>
+  
+  <Step title="Run the installer again">
+    Close the administrator Command Prompt and run the installer again:
+    
+    ```batch
+    gemini-cli-easy-installer-20250706.bat
+    ```
+  </Step>
+</Steps>
+
+### Clear npm Cache Directory Manually
+
+If `npm cache clean --force` doesn't resolve the issue, manually delete the cache:
+
+```batch
+# Delete the npm cache directory
+rd /s /q "%APPDATA%\npm-cache"
+
+# Verify npm still works
+npm -v
+```
+
+npm will automatically recreate the cache directory on the next install.
+
+## Additional Troubleshooting
+
+### Check npm Configuration
+
+Verify your npm configuration is correct:
+
+```batch
+npm config list
+```
+
+**Look for issues with:**
+- `prefix` (should point to Node.js global directory)
+- `proxy` and `https-proxy` (should match your network)
+- `registry` (should be `https://registry.npmjs.org/`)
+
+### Reset npm Configuration
+
+If configuration seems corrupted:
+
+```batch
+# Remove user-level npm configuration
+del "%USERPROFILE%\.npmrc"
+
+# Verify default configuration
+npm config list
+```
+
+### Manual Installation
+
+If the automatic installer continues to fail, install Gemini CLI manually:
+
+<Steps>
+  <Step title="Open Command Prompt as Administrator">
+    Right-click Command Prompt and select "Run as administrator".
+  </Step>
+  
+  <Step title="Install Gemini CLI">
+    ```batch
+    npm install -g @google/gemini-cli
+    ```
+    
+    Watch for any error messages during installation.
+  </Step>
+  
+  <Step title="Verify installation">
+    ```batch
+    gemini --version
+    ```
+    
+    If this works, the installation was successful.
+  </Step>
+  
+  <Step title="Create desktop shortcut manually (optional)">
+    Follow the instructions in [Shortcut Creation Troubleshooting](/troubleshooting/shortcut-creation) to manually create the desktop shortcut.
+  </Step>
+</Steps>
+
+## Verification Steps
+
+After resolving installation issues, verify Gemini CLI is working:
+
+### Check Command Availability
+
+```batch
+where gemini
+```
+
+**Expected output:**
+```
+C:\Program Files\nodejs\gemini
+C:\Program Files\nodejs\gemini.cmd
+```
+
+### Check Version
+
+```batch
+gemini --version
+```
+
+**Expected output:** A version number (e.g., `1.0.0` or similar)
+
+### Test Basic Functionality
+
+```batch
+gemini --help
+```
+
+**Expected output:** Help text showing available commands and options.
+
+## Common Error Messages
+
+<AccordionGroup>
+  <Accordion title="EACCES: permission denied">
+    **Full error:**
+    ```
+    npm ERR! code EACCES
+    npm ERR! syscall access
+    npm ERR! path C:\Program Files\nodejs
+    npm ERR! errno -4048
+    npm ERR! Error: EACCES: permission denied
+    ```
+    
+    **Solution:** Run the installer as administrator (Solution 2).
+  </Accordion>
+  
+  <Accordion title="ENOTFOUND registry.npmjs.org">
+    **Full error:**
+    ```
+    npm ERR! code ENOTFOUND
+    npm ERR! syscall getaddrinfo
+    npm ERR! errno ENOTFOUND
+    npm ERR! network request to https://registry.npmjs.org failed
+    ```
+    
+    **Solution:** Check network connectivity and proxy settings (Solution 1).
+  </Accordion>
+  
+  <Accordion title="ETIMEDOUT">
+    **Full error:**
+    ```
+    npm ERR! code ETIMEDOUT
+    npm ERR! syscall connect
+    npm ERR! errno ETIMEDOUT
+    npm ERR! network request to https://registry.npmjs.org timed out
+    ```
+    
+    **Solution:**
+    - Check firewall settings
+    - Verify internet connection stability
+    - Try again later (npm registry may be experiencing issues)
+  </Accordion>
+  
+  <Accordion title="ECORRUPTCACHE">
+    **Full error:**
+    ```
+    npm ERR! code ECORRUPTCACHE
+    npm ERR! Corrupted cache detected
+    ```
+    
+    **Solution:** Clear npm cache (Solution 3).
+  </Accordion>
+</AccordionGroup>
+
+## Performance Tips
+
+The installer notes that Gemini CLI installation may take 1-2 minutes:
+
+```
+--- [ステップ 2/3] Gemini CLI のインストール/更新...
+  (この処理には1-2分ほどかかる場合があります)
+```
+
+<Info>
+  Be patient during installation. npm needs to download and install multiple dependencies. The process may appear to hang but is likely still working.
+</Info>
+
+### If Installation Seems Stuck
+
+If installation appears to hang for more than 5 minutes:
+
+1. Press **Ctrl+C** to cancel
+2. Clear npm cache (Solution 3)
+3. Run the installer again
+
+## Additional Resources
+
+- [npm Documentation](https://docs.npmjs.com/)
+- [npm Error Codes](https://docs.npmjs.com/cli/errors)
+- [Google Gemini CLI on npm](https://www.npmjs.com/package/@google/gemini-cli)
+
+## Still Having Issues?
+
+If you've tried all solutions and Gemini CLI still won't install:
+
+1. Check `npm-debug.log` in your current directory for detailed error information
+2. Verify Node.js installation: `node -v` and `npm -v`
+3. Try installing a different global package to test npm: `npm install -g npm-check`
+4. Consider reinstalling Node.js completely
+5. Report the issue with full error logs on GitHub
+
+<Warning>
+  If other global npm packages also fail to install, the issue is likely with your Node.js/npm setup rather than Gemini CLI specifically.
+</Warning>

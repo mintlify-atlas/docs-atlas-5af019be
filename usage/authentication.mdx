@@ -1,0 +1,218 @@
+---
+title: 'Authentication'
+description: 'How to authenticate Gemini CLI with your Google account'
+---
+
+## Overview
+
+Gemini CLI requires authentication with your Google account to access Google's Gemini AI services. The authentication process is guided and happens automatically during your first launch or anytime authentication is required.
+
+## Authentication Flow
+
+The authentication setup occurs in two main steps, as documented in the installer (lines 122-128):
+
+<Steps>
+  <Step title="Theme Selection">
+    First, Gemini CLI will prompt you to select a color theme for the CLI interface.
+    
+    ```text
+    Select Theme
+    ```
+    
+    **What to do**: 
+    - Use arrow keys to browse available themes (if multiple options are shown)
+    - If you have no preference, simply press **Enter** to use the default theme
+    - This is purely a visual preference and doesn't affect functionality
+  </Step>
+  
+  <Step title="Authentication Method Selection">
+    Next, you'll be asked to choose how you want to authenticate.
+    
+    ```text
+    Select Auth Method
+    ```
+    
+    **What to do**:
+    - "Login with Google" should be pre-selected
+    - Press **Enter** to confirm
+    - This is the standard and recommended authentication method
+  </Step>
+  
+  <Step title="Google Account Login">
+    After selecting "Login with Google", your default web browser will automatically open.
+    
+    **What to do**:
+    - Your browser opens to a Google authentication page
+    - Follow the on-screen instructions
+    - Sign in with your Google Account credentials
+    - Grant the requested permissions to Gemini CLI
+    - The browser will confirm successful authentication
+  </Step>
+  
+  <Step title="Return to CLI">
+    After completing browser authentication, return to the PowerShell window.
+    
+    **What happens**:
+    - Gemini CLI automatically detects the successful authentication
+    - Your credentials are securely stored locally
+    - You're now ready to use all Gemini CLI features
+  </Step>
+</Steps>
+
+## Important Notes from the Installer
+
+The installer provides this guidance (translated from lines 120-128):
+
+<Info>
+**After launch, in the opened PowerShell, complete the following settings once:**
+
+1. **Theme Selection (Select Theme)**
+   - This is a color setting. If you have no preference, just press [Enter].
+
+2. **Authentication Method Selection (Select Auth Method)**
+   - Select "Login with Google" (it should already be selected) and press [Enter].
+
+3. **Browser Login**
+   - Your browser will open. Follow the on-screen instructions to log in with your Google Account.
+</Info>
+
+## Authentication Method Details
+
+### Login with Google (Recommended)
+
+This is the standard OAuth-based authentication method:
+
+- **Security**: Uses OAuth 2.0 protocol
+- **Convenience**: One-time setup, credentials stored securely
+- **Access**: Full access to your Gemini AI quota and features
+- **Browser-based**: Requires a web browser for initial authentication
+
+<Note>
+The installer specifically recommends using "Login with Google" as the authentication method. This should be pre-selected when you reach the authentication prompt.
+</Note>
+
+## What Gets Stored?
+
+After successful authentication:
+
+- **Tokens are saved locally** on your computer
+- **No passwords** are stored by Gemini CLI
+- **Credentials persist** across sessions - you won't need to re-authenticate each time
+- **Secure storage** uses your operating system's credential management
+
+## When Authentication is Required
+
+You'll need to authenticate:
+
+1. **First Launch**: When you first install and run Gemini CLI
+2. **Token Expiration**: If your authentication token expires (rare)
+3. **After Logout**: If you manually log out from Gemini CLI
+4. **New Installation**: If you reinstall or move to a different computer
+
+## Troubleshooting Authentication
+
+### Browser Doesn't Open Automatically
+
+**Solution**:
+1. Check that you have a default web browser configured
+2. Look in the PowerShell window for a URL
+3. If a URL is displayed, manually copy and paste it into your browser
+4. Complete the authentication in the browser
+
+### Browser Opens But Shows Error
+
+**Possible causes**:
+- **No internet connection**: Verify your network connectivity
+- **Firewall blocking**: Check firewall settings allow browser access to Google services
+- **Proxy issues**: If behind a corporate proxy, ensure it's properly configured
+
+**Solution**:
+```powershell
+# Check internet connectivity
+Test-NetConnection -ComputerName google.com -Port 443
+```
+
+### "Authentication Failed" Message
+
+**Solution**:
+1. Ensure you completed the entire browser flow
+2. Check that you granted all requested permissions
+3. Try the authentication process again
+4. Verify your Google Account is active and accessible
+
+### Theme Selection Doesn't Appear
+
+**This is normal if**:
+- Gemini CLI is already configured
+- You're not running Gemini CLI for the first time
+- Configuration was completed in a previous session
+
+**Solution**: No action needed - proceed to use Gemini CLI normally
+
+### Already Authenticated But Need to Re-authenticate
+
+**To log out and re-authenticate**:
+1. Look for Gemini CLI's logout command (if available)
+2. Or delete stored credentials manually
+3. Restart Gemini CLI to trigger the authentication flow again
+
+<Warning>
+Do not share your authentication tokens or credentials with others. Each user should authenticate with their own Google Account.
+</Warning>
+
+## After Authentication
+
+Once authenticated successfully:
+
+<Steps>
+  <Step title="Verify Authentication">
+    Try a simple command to verify everything works:
+    
+    ```powershell
+    gemini chat "Hello, Gemini!"
+    ```
+    
+    If authenticated correctly, you should get a response from Gemini AI.
+  </Step>
+  
+  <Step title="Close and Reopen">
+    You can close the PowerShell window. Next time you use Gemini CLI, you won't need to authenticate again.
+  </Step>
+  
+  <Step title="Use the Desktop Shortcut">
+    From now on, use the [desktop shortcut](/usage/desktop-shortcut) to launch Gemini CLI anytime - no re-authentication required.
+  </Step>
+</Steps>
+
+## Security Best Practices
+
+- **Keep tokens private**: Don't copy or share authentication tokens
+- **Use your own account**: Each user should authenticate with their own Google Account
+- **Secure your computer**: Keep your computer password-protected to protect stored credentials
+- **Corporate accounts**: If using a work Google Account, ensure compliance with your organization's policies
+
+## Google Account Requirements
+
+<Info>
+You need:
+- A valid Google Account (Gmail or Google Workspace)
+- Internet connectivity during authentication
+- Access to Gemini AI services (may depend on your region and account type)
+- A web browser installed on your computer
+</Info>
+
+## Privacy Considerations
+
+When you authenticate:
+- Gemini CLI gets access to make API calls to Gemini AI on your behalf
+- Your queries and responses are processed by Google's Gemini service
+- Review Google's Gemini AI privacy policy for data handling information
+- Check what permissions you're granting during the OAuth flow
+
+## Next Steps
+
+After completing authentication:
+
+- Learn about the [desktop shortcut](/usage/desktop-shortcut) for easy access
+- Start using Gemini CLI features
+- Explore available commands and capabilities

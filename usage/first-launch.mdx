@@ -1,0 +1,148 @@
+---
+title: 'First Launch'
+description: 'What happens after installation completes and how to start using Gemini CLI'
+---
+
+## Overview
+
+After the installation completes successfully, the installer automatically launches Gemini CLI in a new PowerShell window to help you complete the initial setup. This first launch is crucial as it configures your authentication and preferences.
+
+## What Happens After Installation
+
+When the batch installer finishes Step 3/3, you'll see a completion message:
+
+<Info>
+The installer displays setup completion messages in Japanese, as shown in lines 114-137 of the batch script. The key information is translated below for international users.
+</Info>
+
+### Completion Screen
+
+The installer shows:
+
+```text
+======================================================================
+  Setup completed successfully!
+======================================================================
+
+  Important: First Launch Procedure
+  ----------------------------------------------------------------
+  After this, the launched PowerShell will guide you through
+  the following initial settings:
+
+   (1) Theme Selection (Select Theme)
+       This is a color setting. If you have no preference,
+       just press [Enter].
+
+   (2) Authentication Method Selection (Select Auth Method)
+       Select "Login with Google" and press [Enter].
+
+  Your browser will open. Follow the on-screen instructions
+  to log in with your Google Account.
+
+  Future Usage
+  ----------------------------------------------------------------
+  You can launch Gemini CLI at any time from the desktop shortcut.
+  Once configured, all features are ready to use.
+======================================================================
+
+Press any key to launch Gemini CLI in a new PowerShell window...
+```
+
+## Automatic Launch Process
+
+<Steps>
+  <Step title="Press Any Key">
+    After reading the completion message, press any key to continue. The installer will automatically launch a new PowerShell window.
+  </Step>
+  
+  <Step title="PowerShell Window Opens">
+    A new PowerShell window titled "Gemini CLI" opens with the `gemini` command already running. This window executes:
+    
+    ```powershell
+    powershell -ExecutionPolicy Bypass -NoExit -Command "gemini"
+    ```
+    
+    The `-NoExit` flag keeps the window open after the command completes.
+  </Step>
+  
+  <Step title="Complete Initial Configuration">
+    Follow the prompts in the PowerShell window to complete theme selection and authentication. See the [Authentication](/usage/authentication) page for detailed instructions.
+  </Step>
+</Steps>
+
+## Technical Details
+
+### Launch Command
+
+The installer uses the Windows `start` command to launch Gemini CLI:
+
+```batch
+start "Gemini CLI" powershell -ExecutionPolicy Bypass -NoExit -Command "gemini"
+```
+
+This command (line 141 of the batch file):
+- Creates a new window with title "Gemini CLI"
+- Launches PowerShell with bypass execution policy
+- Keeps the window open (`-NoExit`)
+- Executes the `gemini` command immediately
+
+### Working Directory
+
+The PowerShell window opens in your user profile directory (`%USERPROFILE%`), which is typically:
+
+```text
+C:\Users\YourUsername
+```
+
+<Note>
+You can change to any directory you want after launch. The working directory doesn't affect Gemini CLI's functionality.
+</Note>
+
+## What If It Doesn't Launch?
+
+If the PowerShell window doesn't open automatically:
+
+1. **Check if Node.js is in PATH**: Open a command prompt and run `node -v`
+2. **Manually launch**: Use the [desktop shortcut](/usage/desktop-shortcut) instead
+3. **Or run from command line**: Open PowerShell and type `gemini`
+
+<Warning>
+If you close the PowerShell window before completing authentication, you'll need to launch Gemini CLI again and complete the setup process.
+</Warning>
+
+## Next Steps
+
+After the first launch:
+
+1. [Complete authentication](/usage/authentication) - Select theme and log in with Google
+2. [Use the desktop shortcut](/usage/desktop-shortcut) - Launch Gemini CLI anytime
+3. Start using Gemini CLI features - Chat, generate content, and more
+
+## Troubleshooting First Launch
+
+### PowerShell Opens But Shows Error
+
+**Symptom**: PowerShell window opens but shows "gemini is not recognized"
+
+**Solution**: 
+- Close all command prompts and PowerShell windows
+- Restart your computer to refresh PATH environment variable
+- Use the desktop shortcut to launch
+
+### PowerShell Closes Immediately
+
+**Symptom**: PowerShell window appears briefly then closes
+
+**Solution**:
+- This shouldn't happen due to the `-NoExit` flag
+- If it does, manually open PowerShell and run `gemini` to see the error message
+- Check that the installation completed successfully (all 3 steps)
+
+### Authentication Prompts Don't Appear
+
+**Symptom**: PowerShell opens but doesn't show theme or authentication prompts
+
+**Solution**:
+- Gemini CLI may already be configured
+- Try typing a command like `gemini chat "hello"`
+- If authentication is needed, Gemini CLI will prompt you at that time

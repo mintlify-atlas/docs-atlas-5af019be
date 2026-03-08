@@ -1,0 +1,82 @@
+---
+title: Introduction
+description: Windows batch installer that automatically sets up Node.js, installs Gemini CLI, and creates a desktop shortcut for easy access
+---
+
+# Welcome to Gemini CLI Easy Installer
+
+Gemini CLI Easy Installer is a Windows batch script that simplifies the setup process for Google's Gemini CLI tool. With a single click, you can have everything configured and ready to use.
+
+## What is Gemini CLI Easy Installer?
+
+This tool automates the entire installation process for Gemini CLI on Windows systems. Instead of manually installing Node.js, configuring npm, and setting up the Gemini CLI, this installer handles everything for you.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Automatic Node.js Setup" icon="node-js">
+    Installs Node.js LTS if not present, or updates to the latest version if already installed
+  </Card>
+  <Card title="One-Click Installation" icon="download">
+    Installs the latest version of @google/gemini-cli via npm with a single command
+  </Card>
+  <Card title="Desktop Shortcut" icon="desktop">
+    Creates a convenient desktop shortcut for launching Gemini CLI instantly
+  </Card>
+  <Card title="Smart Error Handling" icon="shield-check">
+    Provides clear error messages and troubleshooting guidance when issues occur
+  </Card>
+</CardGroup>
+
+## How It Works
+
+The installer performs three main steps:
+
+<Steps>
+  <Step title="Node.js Setup">
+    Checks if Node.js is installed. If not, it automatically installs Node.js LTS using winget. If Node.js is already present, it checks for and applies available updates.
+  </Step>
+  <Step title="Gemini CLI Installation">
+    Installs or updates the @google/gemini-cli package globally via npm, making the `gemini` command available system-wide.
+  </Step>
+  <Step title="Shortcut Creation">
+    Creates a desktop shortcut that launches PowerShell with the Gemini CLI ready to use.
+  </Step>
+</Steps>
+
+## Who Should Use This?
+
+This tool is perfect for:
+
+- Windows users who want to try Google's Gemini CLI without manual setup
+- Developers who prefer automated installation over manual configuration
+- Users who are new to command-line tools and want a simplified experience
+- Anyone who wants to quickly get started with Gemini AI assistance
+
+## Quick Start
+
+Ready to get started? The installation process takes just a few minutes:
+
+<CardGroup cols={2}>
+  <Card title="Quickstart Guide" icon="rocket" href="/quickstart">
+    Get up and running in under 5 minutes
+  </Card>
+  <Card title="Requirements" icon="list-check" href="/installation/requirements">
+    Check if your system meets the requirements
+  </Card>
+</CardGroup>
+
+## What You'll Need
+
+- Windows 10 or Windows 11
+- Administrator privileges (for Node.js installation)
+- Internet connection (for downloading packages)
+- The winget package manager (included in modern Windows versions)
+
+## Open Source
+
+Gemini CLI Easy Installer is open source and available under the MIT License. You can view the source code, report issues, or contribute on [GitHub](https://github.com/KM170/gemini-cli-easy-installer).
+
+<Note>
+This installer is designed specifically for Windows systems. If you're using macOS or Linux, you'll need to install Node.js and Gemini CLI manually.
+</Note>

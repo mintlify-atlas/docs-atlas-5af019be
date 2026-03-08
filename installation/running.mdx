@@ -1,0 +1,284 @@
+---
+title: Running the Installer
+description: How to execute the Gemini CLI Easy Installer batch file and complete the installation
+---
+
+After downloading and extracting the installer, you're ready to run it and set up Gemini CLI on your Windows system.
+
+## Running the Installer
+
+<Steps>
+  <Step title="Navigate to the extracted folder">
+    Open the folder where you extracted the ZIP file. You should see the `.bat` file:
+    
+    ```
+    gemini-cli-easy-installer-YYYYMMDD.bat
+    ```
+  </Step>
+  
+  <Step title="Execute the batch file">
+    Double-click the `.bat` file to run the installer.
+    
+    <Info>
+    A Command Prompt window will open and display the installation progress.
+    </Info>
+  </Step>
+  
+  <Step title="Wait for the installation to complete">
+    The installer will automatically:
+    
+    1. Check if Node.js is installed on your system
+    2. Install Node.js LTS if not present, or update it to the latest version
+    3. Install or update the `@google/gemini-cli` package
+    4. Create a desktop shortcut named "Gemini CLI.lnk"
+    
+    <Note>
+    The installation process may take 1-2 minutes, especially if Node.js needs to be downloaded and installed.
+    </Note>
+  </Step>
+</Steps>
+
+## Running as Administrator
+
+If the installer doesn't work properly with standard permissions, you may need to run it as administrator.
+
+<Steps>
+  <Step title="Right-click the batch file">
+    Instead of double-clicking, right-click on the `.bat` file.
+  </Step>
+  
+  <Step title="Select 'Run as administrator'">
+    From the context menu, select **"Run as administrator"**.
+    
+    <Warning>
+    You may see a User Account Control (UAC) prompt asking for permission. Click **"Yes"** to proceed.
+    </Warning>
+  </Step>
+</Steps>
+
+### When to Run as Administrator
+
+You should run the installer as administrator if:
+
+- The installation fails with permission errors
+- Node.js installation through winget is denied
+- npm package installation encounters access issues
+
+## Installation Process Details
+
+The installer performs three main steps:
+
+### Step 1: Node.js Check and Installation
+
+The installer first checks if Node.js is installed on your system.
+
+**If Node.js is not installed:**
+
+```bash
+Node.js が見つかりませんでした。インストールを開始します。
+[進行] Node.js LTS をインストール中です...
+この処理には数分かかる場合があります。しばらくお待ちください...
+```
+
+After installing Node.js, the installer will display an important message:
+
+<Warning>
+**IMPORTANT:** If Node.js was just installed, the installer will exit and ask you to close the window and run the batch file again. This is necessary for the system to recognize the newly installed Node.js.
+</Warning>
+
+```bash
+Node.jsのインストールが完了しました。
+
+セットアップを続けるには、新しい設定をシステムに反映する
+必要があります。
+
+お手数ですが、一度このウィンドウを閉じてから、
+もう一度このファイルを実行してください。
+```
+
+**If Node.js is already installed:**
+
+The installer will display the current version and check for updates:
+
+```bash
+--- [ステップ 1/3] Node.js の状態を確認中...
+  インストール済みのバージョン:
+v20.x.x
+  OK. すでに最新のバージョンがインストールされています。
+```
+
+Or if an update is available:
+
+```bash
+  OK. 更新が適用され、最新版になりました。
+```
+
+### Step 2: Gemini CLI Installation
+
+The installer uses npm to install or update the Gemini CLI package:
+
+```bash
+--- [ステップ 2/3] Gemini CLI のインストール/更新中...
+  (この処理には1-2分ほどかかる場合があります)
+```
+
+The installer runs:
+
+```bash
+npm install -g @google/gemini-cli
+```
+
+After installation, it verifies that the `gemini` command is available:
+
+```bash
+  OK. Gemini CLI のインストール/更新が完了しました。
+```
+
+### Step 3: Desktop Shortcut Creation
+
+The installer creates a convenient desktop shortcut:
+
+```bash
+--- [ステップ 3/3] 仕上げと起動...
+  デスクトップにショートカットを作成しています...
+  OK. デスクトップに「Gemini CLI.lnk」ショートカットが作成されました。
+```
+
+The shortcut is configured to:
+
+- Launch PowerShell with the `gemini` command
+- Use your user profile directory as the working directory
+- Display the PowerShell icon
+
+## Post-Installation Steps
+
+After successful installation, the installer will display setup completion information:
+
+```bash
+======================================================================
+  🎉 セットアップが完了しました！ 🎉
+======================================================================
+
+  ⚠ 重要：初回起動の手順
+  ----------------------------------------------------------------
+  この後、起動するPowerShellで、次の2つの設定を行ってください。
+
+   (1) テーマの選択 (Select Theme)
+       → 見た目の設定です。好みがなければ、そのまま【Enterキー】。
+
+   (2) 認証方法の選択 (Select Auth Method)
+       →「Login with Google」が選ばれた状態で【Enterキー】。
+
+  ブラウザが開くので、画面に従いGoogleアカウントでログインしてください。
+```
+
+<Steps>
+  <Step title="Launch Gemini CLI">
+    Press any key to continue. The installer will automatically launch Gemini CLI in a new PowerShell window.
+    
+    Alternatively, you can use the desktop shortcut created during installation.
+  </Step>
+  
+  <Step title="Select theme">
+    On first launch, you'll be prompted to select a theme. Press **Enter** to use the default theme, or choose your preferred option.
+  </Step>
+  
+  <Step title="Authenticate with Google">
+    Select **"Login with Google"** (default option) and press **Enter**.
+    
+    Your browser will open for Google account authentication. Follow the on-screen instructions to log in.
+  </Step>
+</Steps>
+
+## Using the Desktop Shortcut
+
+After installation, you can launch Gemini CLI at any time by:
+
+1. Double-clicking the **"Gemini CLI"** shortcut on your desktop
+2. This will open PowerShell and automatically run the `gemini` command
+
+<Info>
+The desktop shortcut is configured to keep the PowerShell window open after launching Gemini CLI, so you can start using it immediately.
+</Info>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Installation fails with winget error">
+    If you see an error message about winget not being found:
+    
+    ```bash
+    [エラー] winget コマンドが見つかりません。
+    ```
+    
+    **Solution:**
+    1. Install or update **App Installer** from the Microsoft Store
+    2. Restart your computer
+    3. Run the installer again
+  </Accordion>
+  
+  <Accordion title="Gemini CLI installation fails">
+    If the Gemini CLI installation fails, the installer will suggest possible causes:
+    
+    **1. Network connection issue**
+    - Check your internet connection
+    - Verify you can access npm registry
+    
+    **2. Permission issue**
+    - Run the batch file as administrator
+    
+    **3. npm cache issue**
+    - Open Command Prompt as administrator
+    - Run: `npm cache clean --force`
+    - Run the installer again
+  </Accordion>
+  
+  <Accordion title="Node.js installed but not recognized">
+    If Node.js was just installed and you see this message:
+    
+    ```bash
+    セットアップを続けるには、新しい設定をシステムに反映する
+    必要があります。
+    ```
+    
+    **Solution:**
+    1. Close the current Command Prompt window
+    2. Run the batch file again
+    3. The system will now recognize Node.js
+  </Accordion>
+  
+  <Accordion title="Shortcut creation failed">
+    If you see:
+    
+    ```bash
+    [警告] ショートカットの作成に失敗しました。
+    ```
+    
+    **Solution:**
+    - You can still use Gemini CLI by running `gemini` in PowerShell or Command Prompt
+    - To manually create the shortcut, you can run the installer as administrator
+  </Accordion>
+  
+  <Accordion title="Installation takes longer than expected">
+    If the installation seems stuck:
+    
+    - Wait patiently, especially during Node.js installation (can take several minutes)
+    - Check if Windows Defender or antivirus is scanning the downloaded files
+    - Ensure you have a stable internet connection
+    - If it exceeds 10 minutes, close the window and try running as administrator
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+After successfully installing and running Gemini CLI:
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Learn how to use Gemini CLI for the first time
+  </Card>
+  
+  <Card title="Authentication" icon="key" href="/usage/authentication">
+    Complete the initial authentication setup
+  </Card>
+</CardGroup>

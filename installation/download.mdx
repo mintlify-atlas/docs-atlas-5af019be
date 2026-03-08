@@ -1,0 +1,128 @@
+---
+title: Download the Installer
+description: How to download the Gemini CLI Easy Installer from GitHub releases
+---
+
+The Gemini CLI Easy Installer is distributed as a ZIP file through GitHub Releases. Follow these steps to download the installer to your Windows system.
+
+## Accessing the Releases Page
+
+The latest version of the installer is always available on the GitHub releases page.
+
+<Steps>
+  <Step title="Navigate to the releases page">
+    Visit the [Gemini CLI Easy Installer Releases](https://github.com/KM170/gemini-cli-easy-installer/releases) page on GitHub.
+    
+    <Info>
+    You can also access the releases by clicking the **"Releases"** section on the right side of the GitHub repository page.
+    </Info>
+  </Step>
+  
+  <Step title="Find the latest release">
+    The most recent release will be displayed at the top of the page, marked with a green **"Latest"** badge.
+  </Step>
+  
+  <Step title="Download the ZIP file">
+    Under the **"Assets"** section of the latest release, click on the `.zip` file to download it.
+    
+    The file name will typically follow this pattern:
+    ```
+    gemini-cli-easy-installer-YYYYMMDD.zip
+    ```
+    
+    Where `YYYYMMDD` represents the release date.
+  </Step>
+</Steps>
+
+## Extracting the ZIP File
+
+After downloading, you need to extract the contents of the ZIP file before running the installer.
+
+<Steps>
+  <Step title="Locate the downloaded file">
+    The ZIP file is typically downloaded to your **Downloads** folder by default.
+  </Step>
+  
+  <Step title="Extract the contents">
+    Right-click on the downloaded ZIP file and select **"Extract All..."** from the context menu.
+    
+    <Info>
+    Windows has built-in ZIP extraction capabilities, so you don't need any third-party software.
+    </Info>
+  </Step>
+  
+  <Step title="Choose extraction location">
+    In the extraction dialog:
+    
+    1. Choose where you want to extract the files (or use the default location)
+    2. Ensure the **"Show extracted files when complete"** checkbox is selected
+    3. Click **"Extract"**
+  </Step>
+  
+  <Step title="Verify extraction">
+    After extraction, you should see a `.bat` file in the extracted folder:
+    
+    ```
+    gemini-cli-easy-installer-YYYYMMDD.bat
+    ```
+    
+    This is the installer batch file you'll run in the next step.
+  </Step>
+</Steps>
+
+<Warning>
+**Important:** You must extract the ZIP file before running the installer. Do not try to run the `.bat` file directly from within the ZIP archive, as this may cause errors.
+</Warning>
+
+## File Details
+
+The extracted folder will contain:
+
+| File Type | Description |
+|-----------|-------------|
+| `.bat` file | The Windows batch installer script |
+
+The `.bat` file is a self-contained installer that will:
+
+- Check for Node.js installation
+- Install or update Node.js using winget
+- Install or update the Gemini CLI package
+- Create a desktop shortcut for easy access
+
+## Next Steps
+
+Once you've successfully downloaded and extracted the installer, you're ready to run it.
+
+<Card title="Run the Installer" icon="play" href="/installation/running">
+  Learn how to execute the installer and complete the setup process.
+</Card>
+
+## Troubleshooting Download Issues
+
+<AccordionGroup>
+  <Accordion title="Download is blocked by browser">
+    Some browsers may flag the ZIP file as potentially unsafe because it contains a `.bat` file. This is a false positive. You can:
+    
+    1. Click **"Keep"** or **"Download anyway"** in your browser
+    2. Check your browser's download history and allow the download
+    
+    The installer is open source and safe to use.
+  </Accordion>
+  
+  <Accordion title="Cannot access GitHub releases">
+    If you're unable to access GitHub:
+    
+    1. Check your internet connection
+    2. Verify that GitHub is not blocked by your network or firewall
+    3. Try accessing the page from a different network
+  </Accordion>
+  
+  <Accordion title="ZIP file won't extract">
+    If you encounter errors during extraction:
+    
+    1. Ensure the download completed successfully (check file size)
+    2. Try downloading the file again
+    3. Use a different extraction location (such as your Desktop)
+    4. Try using a third-party extraction tool like 7-Zip
+  </Accordion>
+</AccordionGroup>
