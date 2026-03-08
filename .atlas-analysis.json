@@ -1,0 +1,74 @@
+{
+  "projectType": "cli-tool",
+  "projectName": "Gemini CLI Easy Installer",
+  "projectDescription": "Windows batch installer that automatically sets up Node.js, installs Gemini CLI, and creates a desktop shortcut for easy access",
+  "theme": "almond",
+  "primaryColor": "#4285F4",
+  "lightColor": "#8AB4F8",
+  "darkColor": "#1967D2",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "introduction",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Installation",
+        "pages": [
+          "installation/requirements",
+          "installation/download",
+          "installation/running"
+        ]
+      },
+      {
+        "group": "Usage",
+        "pages": [
+          "usage/first-launch",
+          "usage/authentication",
+          "usage/desktop-shortcut"
+        ]
+      },
+      {
+        "group": "Troubleshooting",
+        "pages": [
+          "troubleshooting/common-issues",
+          "troubleshooting/node-installation",
+          "troubleshooting/gemini-cli-installation",
+          "troubleshooting/shortcut-creation"
+        ]
+      },
+      {
+        "group": "Advanced",
+        "pages": [
+          "advanced/manual-setup",
+          "advanced/uninstallation"
+        ]
+      },
+      {
+        "group": "Reference",
+        "pages": [
+          "reference/what-it-does",
+          "reference/license",
+          "reference/faq"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Automatic Node.js installation and update checking",
+    "One-click Gemini CLI installation via npm",
+    "Desktop shortcut creation for easy launch",
+    "Windows-native batch script with no additional dependencies",
+    "Comprehensive error handling and troubleshooting guidance"
+  ],
+  "publicApiSurface": [
+    "gemini-cli-easy-installer-20250706.bat - Main installer script",
+    "Node.js LTS installation via winget",
+    "@google/gemini-cli npm package installation",
+    "Desktop shortcut creation (Gemini CLI.lnk)",
+    "PowerShell command execution for Gemini CLI launch"
+  ]
+}
