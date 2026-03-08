@@ -13,14 +13,14 @@ The Gemini CLI Easy Installer checks for Node.js at the beginning of execution (
 
 You see this error message:
 
-```
+```text
 [エラー] winget コマンドが見つかりません。
 Windows 10/11の最新であることをご確認いただくか、Microsoft Storeから
 「アプリ インストーラー」をインストールしてください。
 ```
 
 **English translation:**
-```
+```text
 [Error] winget command not found.
 Please ensure you have the latest version of Windows 10/11, or install
 "App Installer" from the Microsoft Store.
@@ -97,7 +97,7 @@ where winget >nul 2>&1 || (
 
 After Node.js installation completes, you see this message:
 
-```
+```text
 ==============================【重要】==============================
   Node.js のインストールが完了しました。
 
@@ -110,7 +110,7 @@ After Node.js installation completes, you see this message:
 ```
 
 **English translation:**
-```
+```text
 ============================【IMPORTANT】============================
   Node.js installation has been completed.
 
@@ -191,7 +191,7 @@ node -v
 ```
 
 **Expected output:**
-```
+```text
 v20.11.0
 ```
 (or similar LTS version number)
@@ -203,7 +203,7 @@ npm -v
 ```
 
 **Expected output:**
-```
+```text
 10.2.4
 ```
 (or similar version number)
@@ -215,7 +215,7 @@ echo %PATH%
 ```
 
 **Expected result:** The output should include:
-```
+```text
 C:\Program Files\nodejs
 ```
 
